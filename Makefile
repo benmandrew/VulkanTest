@@ -6,6 +6,7 @@ CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(STB_INCLUDE_PATH)
 LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
 
 VulkanTest: main.cpp
+	./shaders/compile.sh
 	g++ $(CFLAGS) -o build/VulkanTest main.cpp $(LDFLAGS) -lpthread
 
 .PHONY: test clean
