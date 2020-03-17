@@ -4,7 +4,8 @@
         "name": "Linux",
         "includePath": [
             "${workspaceFolder}/",
-            "/home/ben/dev/vulkan/1.2.131.2/x86_64/include"
+            "/home/ben/dev/vulkan/1.2.131.2/x86_64/include",
+            "/home/ben/dev/stb"
         ],
         "defines": [],
         "compilerPath": "/usr/bin/gcc",
