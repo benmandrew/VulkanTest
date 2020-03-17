@@ -5,7 +5,8 @@
         "includePath": [
             "${workspaceFolder}/",
             "/home/ben/dev/vulkan/1.2.131.2/x86_64/include",
-            "/home/ben/dev/stb"
+            "/home/ben/dev/stb",
+            "/home/ben/dev/tinyobj"
         ],
         "defines": [],
         "compilerPath": "/usr/bin/gcc",
