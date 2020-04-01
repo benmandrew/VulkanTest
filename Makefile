@@ -8,7 +8,7 @@ LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
 
 VulkanTest: main.cpp
 	./shaders/compile.sh
-	g++ -O3 $(CFLAGS) -o build/VulkanTest main.cpp $(LDFLAGS) -lpthread
+	g++ -g -O3 $(CFLAGS) -o build/VulkanTest main.cpp $(LDFLAGS) -lpthread
 
 .PHONY: test clean
 
