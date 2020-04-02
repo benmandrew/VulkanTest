@@ -8,9 +8,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -27,6 +24,8 @@
 #include <fstream>
 #include <array>
 #include <unordered_map>
+
+#include "texture.h"
 
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;

@@ -1,16 +1,23 @@
 #ifndef __UTIL_H_INCLUDED__
 #define __UTIL_H_INCLUDED__
-#pragma once
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
 
+#include "commander.h"
 
 struct Device {
     VkDevice logical;
     VkPhysicalDevice physical;
+};
+
+class Commander;
+
+struct Instance {
+    Device device;
+    Commander* commander;
 };
 
 

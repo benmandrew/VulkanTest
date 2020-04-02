@@ -10,7 +10,7 @@ SRC = ./source/*.cpp
 
 VulkanTest:
 	./shaders/compile.sh
-	g++ -g -O3 $(CFLAGS) -o build/VulkanTest $(SRC) $(LDFLAGS) -lpthread
+	g++ -g $(CFLAGS) -o build/VulkanTest $(SRC) $(LDFLAGS) -lpthread
 
 .PHONY: test clean
 

@@ -1,15 +1,12 @@
 #ifndef __COMMANDER_H_INCLUDED__
 #define __COMMANDER_H_INCLUDED__
-#pragma once
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 #include <stdexcept>
 #include <vector>
 
 #include "util.h"
 
+struct Device;
 
 class Commander {
     VkCommandPool pool;
@@ -21,6 +18,8 @@ class Commander {
 
 public:
     void transitionImageLayout(Device device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+    void copyBufferToImage(Device device, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+    void generateMipmaps(Device device, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 };
 
 #endif
