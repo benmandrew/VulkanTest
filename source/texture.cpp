@@ -25,3 +25,10 @@ void Texture::create(Instance instance, std::string imgPath) {
     vkDestroyBuffer(instance.device.logical, stagingBuffer, nullptr);
     vkFreeMemory(instance.device.logical, stagingBufferMemory, nullptr);
 }
+
+void Texture::destroy(Device device) {
+    vkDestroySampler(device.logical, sampler, nullptr);
+    vkDestroyImageView(device.logical, view, nullptr);
+    vkDestroyImage(device.logical, image, nullptr);
+    vkFreeMemory(device.logical, memory, nullptr);
+}

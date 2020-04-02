@@ -159,3 +159,11 @@ void Commander::generateMipmaps(Device device, VkImage image, VkFormat imageForm
         1, &barrier);
     endSingleTimeCommands(device, commandBuffer);
 }
+
+void Commander::create() {
+
+}
+
+void Commander::destroy(Device device) {
+    vkDestroyCommandPool(device.logical, pool, nullptr);
+}

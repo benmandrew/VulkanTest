@@ -17,7 +17,9 @@ class Texture {
     VkSampler sampler;
     uint32_t mipLevels;
 
+public:
     void create(Instance instance, std::string imgPath);
+    void destroy(Device device);
 };
 
 #endif

@@ -8,11 +8,6 @@
 
 #include "commander.h"
 
-struct Device {
-    VkDevice logical;
-    VkPhysicalDevice physical;
-};
-
 class Commander;
 
 struct Instance {
