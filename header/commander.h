@@ -12,7 +12,6 @@ struct Device;
 class Commander {
     VkCommandPool pool;
     std::vector<VkCommandBuffer> buffers;
-    VkQueue graphicsQueue;
 
     VkCommandBuffer beginSingleTimeCommands(Device device);
     void endSingleTimeCommands(Device device, VkCommandBuffer commandBuffer);

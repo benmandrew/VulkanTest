@@ -22,8 +22,8 @@ void Commander::endSingleTimeCommands(Device device, VkCommandBuffer commandBuff
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
+    vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device.graphicsQueue);
     vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
 }
 

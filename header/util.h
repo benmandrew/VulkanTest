@@ -5,14 +5,19 @@
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <vector>
+#include <cstring>
+#include <iostream>
 
-#include "commander.h"
+#include "instance.h"
 
-class Commander;
 
-struct Instance {
-    Device device;
-    Commander* commander;
+const std::vector<const char*> validationLayers = {
+    "VK_LAYER_KHRONOS_validation"
+};
+
+const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 
@@ -44,5 +49,13 @@ uint32_t findMemoryType(
 
 bool hasStencilComponent(
     VkFormat format);
+
+bool checkValidationLayerSupport();
+
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+std::vector<const char*> getRequiredExtensions(bool validationLayersEnabled);
+
+bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 #endif
