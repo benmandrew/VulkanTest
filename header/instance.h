@@ -1,14 +1,7 @@
 #ifndef __INSTANCE_H_INCLUDED__
 #define __INSTANCE_H_INCLUDED__
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <stdexcept>
-#include <optional>
-#include <set>
-
-#include "util.h"
+#include "surface.h"
 
 
 class Commander;
@@ -22,12 +15,6 @@ struct QueueFamilyIndices {
     }
 };
 
-struct SwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-};
-
 struct Device {
     VkDevice logical;
     VkPhysicalDevice physical = VK_NULL_HANDLE;
@@ -38,17 +25,21 @@ struct Device {
 struct Instance {
     bool validationLayersEnabled;
     VkInstance instance;
+    VkDebugUtilsMessengerEXT debugMessenger;
     Device device;
+    Surface surface;
     Commander* commander;
 
     void create(bool enableValidationLayers);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 private:
     void createInstance();
+    void setupDebugMessenger();
+    void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 };
 
 #endif

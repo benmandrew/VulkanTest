@@ -43,6 +43,21 @@ void Instance::createInstance() {
     }
 }
 
+void Instance::setupDebugMessenger() {
+    if (!validationLayersEnabled) return;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+        throw std::runtime_error("failed to set up debug messenger!");
+    }
+}
+
+void Instance::createSurface() {
+    if (glfwCreateWindowSurface(instance, surface.window, nullptr, &surface.surface) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+    }
+}
+
 void Instance::pickPhysicalDevice() {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -103,7 +118,7 @@ bool Instance::isDeviceSuitable(VkPhysicalDevice device) {
     bool extensionsSupported = checkDeviceExtensionSupport(device);
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = surface.querySwapChainSupport(device);
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
     VkPhysicalDeviceFeatures supportedFeatures;
@@ -123,7 +138,7 @@ QueueFamilyIndices Instance::findQueueFamilies(VkPhysicalDevice device) {
             indices.graphicsFamily = i;
         }
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface.surface, &presentSupport);
         if (presentSupport) {
             indices.presentFamily = i;
         }

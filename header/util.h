@@ -52,10 +52,24 @@ bool hasStencilComponent(
 
 bool checkValidationLayerSupport();
 
-void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+void populateDebugMessengerCreateInfo(
+    VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-std::vector<const char*> getRequiredExtensions(bool validationLayersEnabled);
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance,
+    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    VkDebugUtilsMessengerEXT* pDebugMessenger);
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+void DestroyDebugUtilsMessengerEXT(
+    VkInstance instance,
+    VkDebugUtilsMessengerEXT debugMessenger,
+    const VkAllocationCallbacks* pAllocator);
+
+std::vector<const char*> getRequiredExtensions(
+    bool validationLayersEnabled);
+
+bool checkDeviceExtensionSupport(
+    VkPhysicalDevice device);
 
 #endif
