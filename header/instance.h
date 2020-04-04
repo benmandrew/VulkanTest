@@ -28,7 +28,7 @@ struct Instance {
     VkDebugUtilsMessengerEXT debugMessenger;
     Device device;
     Surface surface;
-    Commander* commander;
+    Commander commander;
 
     void create(bool enableValidationLayers);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #include "instance.h"
 
@@ -34,6 +35,13 @@ void createImage(
     VkImage& image, 
     VkDeviceMemory& imageMemory);
 
+VkImageView createImageView(
+    Device device,
+    VkImage image,
+    VkFormat format,
+    VkImageAspectFlags aspectFlags,
+    uint32_t mipLevels);
+
 void createBuffer(
     Device device,
     VkDeviceSize size,
@@ -46,6 +54,15 @@ uint32_t findMemoryType(
     Device device,
     uint32_t typeFilter,
     VkMemoryPropertyFlags properties);
+
+VkFormat findSupportedFormat(
+    Device device,
+    const std::vector<VkFormat>& candidates,
+    VkImageTiling tiling,
+    VkFormatFeatureFlags features);
+
+VkFormat findDepthFormat(
+    Device device);
 
 bool hasStencilComponent(
     VkFormat format);
@@ -71,5 +88,12 @@ std::vector<const char*> getRequiredExtensions(
 
 bool checkDeviceExtensionSupport(
     VkPhysicalDevice device);
+
+static std::vector<char> readFile(
+    const std::string& filename);
+
+VkShaderModule createShaderModule(
+    Device device, 
+    const std::vector<char>& code);
 
 #endif

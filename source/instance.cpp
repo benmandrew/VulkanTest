@@ -69,7 +69,6 @@ void Instance::pickPhysicalDevice() {
     for (const auto& candidateDevice : candidateDevices) {
         if (isDeviceSuitable(candidateDevice)) {
             device.physical = candidateDevice;
-            //msaaSamples = getMaxUsableSampleCount();
             break;
         }
     }

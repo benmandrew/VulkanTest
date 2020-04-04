@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "device.h"
+#include "instance.h"
 #include "util.h"
 
 struct Device;

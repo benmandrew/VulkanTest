@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <optional>
 #include <set>
+#include <array>
 
 #include "util.h"
 
@@ -18,6 +19,9 @@ struct SwapChainSupportDetails {
 };
 
 struct Surface {
+    uint32_t width = 800;
+    uint32_t height = 600;
+    bool framebufferResized = true;
     GLFWwindow* window;
     VkSurfaceKHR surface;
     VkSwapchainKHR swapChain;
@@ -26,8 +30,17 @@ struct Surface {
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
 
-    SwapChainSupportDetails querySwapChainSupport(Device device);
+    void create(Instance instance);
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    const VkFormat getFormat() const;
+    const VkExtent2D getExtents() const;
+    const uint32_t getSwapChainSize() const;
+    const VkImageView getSwapChainImageView(uint32_t i) const;
+
+private:
+    void createWindow();
     void createSwapChain(Instance instance);
+    void createImageViews(Device device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
