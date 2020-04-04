@@ -1,6 +1,43 @@
 #include "commander.h"
 
 
+void Commander::createBuffers(Instance instance) {
+    buffers.resize(instance.surface.getSwapChainSize());
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = pool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t) buffers.size();
+    if (vkAllocateCommandBuffers(instance.device.logical, &allocInfo, buffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate command buffers!");
+    }
+    for (size_t i = 0; i < buffers.size(); i++) {
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        if (vkBeginCommandBuffer(buffers[i], &beginInfo) != VK_SUCCESS) {
+            throw std::runtime_error("failed to begin recording command buffer!");
+        }
+        VkRenderPassBeginInfo renderPassInfo = instance.renderer.getRenderPassInfo(instance, i);
+        std::array<VkClearValue, 2> clearValues = {};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+        vkCmdBeginRenderPass(buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipeline());
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(buffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
+        vkCmdDrawIndexed(buffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdEndRenderPass(buffers[i]);
+        if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record command buffer!");
+        }
+    }
+}
+
 VkCommandBuffer Commander::beginSingleTimeCommands(Device device) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -25,6 +62,14 @@ void Commander::endSingleTimeCommands(Device device, VkCommandBuffer commandBuff
     vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(device.graphicsQueue);
     vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
+}
+
+void Commander::create() {
+
+}
+
+void Commander::destroy(Device device) {
+    vkDestroyCommandPool(device.logical, pool, nullptr);
 }
 
 void Commander::transitionImageLayout(Device device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
@@ -158,12 +203,4 @@ void Commander::generateMipmaps(Device device, VkImage image, VkFormat imageForm
         0, nullptr,
         1, &barrier);
     endSingleTimeCommands(device, commandBuffer);
-}
-
-void Commander::create() {
-
-}
-
-void Commander::destroy(Device device) {
-    vkDestroyCommandPool(device.logical, pool, nullptr);
 }

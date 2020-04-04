@@ -52,10 +52,19 @@ struct Vertex {
     }
 };
 
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                   (hash<glm::vec3>()(vertex.colour) << 1)) >> 1) ^
+                   (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
+
 class Renderer {
     VkSampleCountFlagBits msaaSamples;
     VkRenderPass renderPass;
-    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -78,6 +87,9 @@ class Renderer {
 public:
     void create(Instance instance);
 
+    const VkRenderPassBeginInfo getRenderPassInfo(Instance instance, uint32_t frameIndex) const;
+    const VkPipeline getPipeline() const;
+    const VkPipelineLayout getPipelineLayout() const;
 };
 
 

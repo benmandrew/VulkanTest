@@ -2,9 +2,9 @@
 #define __INSTANCE_H_INCLUDED__
 
 #include "surface.h"
+#include "renderer.h"
+#include "commander.h"
 
-
-class Commander;
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
@@ -28,6 +28,7 @@ struct Instance {
     VkDebugUtilsMessengerEXT debugMessenger;
     Device device;
     Surface surface;
+    Renderer renderer;
     Commander commander;
 
     void create(bool enableValidationLayers);

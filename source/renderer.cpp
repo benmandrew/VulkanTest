@@ -72,28 +72,6 @@ void Renderer::createRenderPass(Instance instance) {
     }
 }
 
-void Renderer::createDescriptorSetLayout(Device device) {
-    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-    if (vkCreateDescriptorSetLayout(device.logical, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
-}
-
 void Renderer::createGraphicsPipeline(Instance instance) {
     auto vertShaderCode = readFile("shaders/vert.spv");
     auto fragShaderCode = readFile("shaders/frag.spv");
@@ -264,7 +242,7 @@ void Renderer::createDepthResources(Instance instance) {
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
         depthImage, depthImageMemory);
     depthImageView = createImageView(instance.device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-    instance.commander.transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
+    instance.commander.transitionImageLayout(instance.device, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 }
 
 VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
@@ -278,4 +256,22 @@ VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
     if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
     if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
     return VK_SAMPLE_COUNT_1_BIT;
+}
+
+const VkRenderPassBeginInfo Renderer::getRenderPassInfo(Instance instance, uint32_t frameIndex) const {
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = swapChainFramebuffers[frameIndex];
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = instance.surface.getExtents();
+    return renderPassInfo;
+}
+
+const VkPipeline Renderer::getPipeline() const {
+    return graphicsPipeline;
+}
+
+const VkPipelineLayout Renderer::getPipelineLayout() const {
+    return pipelineLayout;
 }
