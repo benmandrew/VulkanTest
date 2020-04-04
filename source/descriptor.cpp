@@ -3,6 +3,7 @@
 void Descriptor::create(Instance instance) {
     uint32_t swapChainSize = instance.surface.getSwapChainSize();
     createDescriptorSetLayout(instance.device);
+
     createUniformBuffers(instance.device, swapChainSize);
     createDescriptorPool(instance.device, swapChainSize);
     createDescriptorSets(instance.device, swapChainSize);
@@ -28,6 +29,36 @@ void Descriptor::createDescriptorSetLayout(Device device) {
     if (vkCreateDescriptorSetLayout(device.logical, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
+}
+
+void Descriptor::createVertexBuffer(Instance instance, std::vector<Vertex> vertices) {
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(instance.device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    void* data;
+    vkMapMemory(instance.device.logical, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(instance.device.logical, stagingBufferMemory);
+    createBuffer(instance.device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+    instance.commander.copyBuffer(instance.device, stagingBuffer, vertexBuffer, bufferSize);
+    vkDestroyBuffer(instance.device.logical, stagingBuffer, nullptr);
+    vkFreeMemory(instance.device.logical, stagingBufferMemory, nullptr);
+}
+
+void Descriptor::createIndexBuffer(Instance instance, std::vector<uint32_t> indices) {
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(instance.device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    void* data;
+    vkMapMemory(instance.device.logical, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(instance.device.logical, stagingBufferMemory);
+    createBuffer(instance.device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+    instance.commander.copyBuffer(instance.device, stagingBuffer, indexBuffer, bufferSize);
+    vkDestroyBuffer(instance.device.logical, stagingBuffer, nullptr);
+    vkFreeMemory(instance.device.logical, stagingBufferMemory, nullptr);
 }
 
 void Descriptor::createUniformBuffers(Device device, uint32_t swapChainSize) {
@@ -92,4 +123,20 @@ void Descriptor::createDescriptorSets(Device device, uint32_t swapChainSize) {
         descriptorWrites[1].pImageInfo = &imageInfo;
         vkUpdateDescriptorSets(device.logical, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
+}
+
+const VkBuffer Descriptor::getVertexBuffer() const {
+    return vertexBuffer;
+}
+
+const VkBuffer Descriptor::getIndexBuffer() const {
+    return indexBuffer;
+}
+
+const uint32_t Descriptor::getNIndices() const {
+    return nIndices;
+}
+
+const VkDescriptorSet* Descriptor::getDescriptorSets(uint32_t i) const {
+    return &descriptorSets[i];
 }

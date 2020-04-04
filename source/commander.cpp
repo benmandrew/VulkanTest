@@ -25,12 +25,12 @@ void Commander::createBuffers(Instance instance) {
         renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipeline());
-        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkBuffer vertexBuffers[] = {instance.descriptor.getVertexBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(buffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
-        vkCmdDrawIndexed(buffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdBindIndexBuffer(buffers[i], instance.descriptor.getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, instance.descriptor.getDescriptorSets(i), 0, nullptr);
+        vkCmdDrawIndexed(buffers[i], instance.descriptor.getNIndices(), 1, 0, 0, 0);
         vkCmdEndRenderPass(buffers[i]);
         if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
@@ -114,6 +114,14 @@ void Commander::transitionImageLayout(Device device, VkImage image, VkFormat for
         throw std::invalid_argument("unsupported layout transition!");
     }
     vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    endSingleTimeCommands(device, commandBuffer);
+}
+
+void Commander::copyBuffer(Device device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands(device);
+    VkBufferCopy copyRegion = {};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
     endSingleTimeCommands(device, commandBuffer);
 }
 

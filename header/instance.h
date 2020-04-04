@@ -3,6 +3,7 @@
 
 #include "surface.h"
 #include "renderer.h"
+#include "descriptor.h"
 #include "commander.h"
 
 
@@ -29,6 +30,7 @@ struct Instance {
     Device device;
     Surface surface;
     Renderer renderer;
+    Descriptor descriptor;
     Commander commander;
 
     void create(bool enableValidationLayers);
