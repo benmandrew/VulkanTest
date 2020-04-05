@@ -30,16 +30,20 @@ struct Surface {
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
 
-    void create(Instance instance);
+    void createWindow();
+    void createSwapChain(Instance instance);
+    void createImageViews(Device device);
+
+    void destroyWindow();
+    void destroySwapChain(Instance instance);
+    void destroyImageViews(Device device);
+
     const VkFormat getFormat() const;
     const VkExtent2D getExtents() const;
     const uint32_t getSwapChainSize() const;
     const VkImageView getSwapChainImageView(uint32_t i) const;
 
 private:
-    void createWindow();
-    void createSwapChain(Instance instance);
-    void createImageViews(Device device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);

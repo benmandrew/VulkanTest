@@ -1,11 +1,6 @@
 #include "surface.h"
 
 
-void Surface::create(Instance instance) {
-    createSwapChain(instance);
-    createImageViews(instance.device);
-}
-
 const VkFormat Surface::getFormat() const {
     return swapChainImageFormat;
 }

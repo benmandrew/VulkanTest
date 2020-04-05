@@ -2,11 +2,6 @@
 #include "instance.h"
 
 
-void Device::create(Instance instance, bool enableValidationLayers) {
-    pickPhysicalDevice(instance);
-    createLogicalDevice(instance, enableValidationLayers);
-}
-
 void Device::pickPhysicalDevice(Instance instance) {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance.instance, &deviceCount, nullptr);
@@ -76,10 +71,35 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
 
 
 void Instance::create(bool enableValidationLayers) {
+    surface.createWindow();
     validationLayersEnabled = enableValidationLayers;
     createInstance();
     setupDebugMessenger();
     createSurface();
+    device.pickPhysicalDevice(*this);
+    device.createLogicalDevice(*this, validationLayersEnabled);
+    surface.createSwapChain(*this);
+    surface.createImageViews(device);
+    renderer.createRenderPass(*this);
+    descriptor.createDescriptorSetLayout(*this);
+    renderer.createGraphicsPipeline(*this);
+    commander.createPool(device);
+    renderer.createColourResources(*this);
+    renderer.createDepthResources(*this);
+    renderer.createFramebuffers(*this);
+    models = std::vector<Model>();
+    models.push_back(Model());
+    models[0].create(*this, "models/chalet.obj", "textures/chalet.jpg");
+    descriptor.createVertexBuffer(*this, models[0].vertices);
+    descriptor.createIndexBuffer(*this, models[0].indices);
+    descriptor.createUniformBuffers(*this);
+    descriptor.createDescriptorPool(*this);
+    descriptor.createDescriptorSets(*this);
+    commander.createBuffers(*this);
+}
+
+void Instance::destroy() {
+
 }
 
 void Instance::createInstance() {
@@ -130,3 +150,48 @@ void Instance::createSurface() {
         throw std::runtime_error("failed to create window surface!");
     }
 }
+
+void Instance::cleanupSwapChain() {
+    renderer.destroyColourResources(device);
+    renderer.destroyDepthResources(device);
+    uint32_t swapChainSize = surface.getSwapChainSize();
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyFramebuffer(device.logical, swapChainFramebuffers[i], nullptr);
+    }
+    commander.destroyBuffers();
+    vkDestroyPipeline(device.logical, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device.logical, pipelineLayout, nullptr);
+    vkDestroyRenderPass(device.logical, renderPass, nullptr);
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyImageView(device.logical, swapChainImageViews[i], nullptr);
+    }
+    vkDestroySwapchainKHR(device.logical, swapChain, nullptr);
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyBuffer(device.logical, uniformBuffers[i], nullptr);
+        vkFreeMemory(device.logical, uniformBuffersMemory[i], nullptr);
+    }
+    vkDestroyDescriptorPool(device.logical, descriptorPool, nullptr);
+}
+
+void Instance::recreateSwapChain() {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(surface.window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(surface.window, &width, &height);
+        glfwWaitEvents();
+    }
+    vkDeviceWaitIdle(device.logical);
+    cleanupSwapChain();
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createColourResources();
+    createDepthResources();
+    createFramebuffers();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
+    createCommandBuffers();
+}
+s

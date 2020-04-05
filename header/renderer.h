@@ -62,7 +62,7 @@ namespace std {
     };
 }
 
-class Renderer {
+struct Renderer {
     VkSampleCountFlagBits msaaSamples;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
@@ -77,15 +77,14 @@ class Renderer {
     VkImageView colourImageView;
 
     void createRenderPass(Instance instance);
-    void createDescriptorSetLayout(Device device);
     void createGraphicsPipeline(Instance instance);
     void createFramebuffers(Instance instance);
     void createColourResources(Instance instance);
     void createDepthResources(Instance instance);
     VkSampleCountFlagBits getMaxUsableSampleCount(Device device);
 
-public:
-    void create(Instance instance);
+    void destroyColourResources(Device device);
+    void destroyDepthResources(Device device);
 
     const VkRenderPassBeginInfo getRenderPassInfo(Instance instance, uint32_t frameIndex) const;
     const VkPipeline getPipeline() const;

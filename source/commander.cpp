@@ -3,12 +3,10 @@
 
 void Commander::createPool(Device device) {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(device.physical);
-
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
     poolInfo.flags = 0; // Optional
-
     if (vkCreateCommandPool(device.logical, &poolInfo, nullptr, &pool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");
     }
@@ -38,12 +36,12 @@ void Commander::createBuffers(Instance instance) {
         renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipeline());
-        VkBuffer vertexBuffers[] = {instance.descriptor.getVertexBuffer()};
+        VkBuffer vertexBuffers[] = {instance.descriptor.vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(buffers[i], instance.descriptor.getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(buffers[i], instance.descriptor.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, instance.descriptor.getDescriptorSets(i), 0, nullptr);
-        vkCmdDrawIndexed(buffers[i], instance.descriptor.getNIndices(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(buffers[i], instance.descriptor.nIndices, 1, 0, 0, 0);
         vkCmdEndRenderPass(buffers[i]);
         if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
@@ -75,10 +73,6 @@ void Commander::endSingleTimeCommands(Device device, VkCommandBuffer commandBuff
     vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(device.graphicsQueue);
     vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
-}
-
-void Commander::create() {
-
 }
 
 void Commander::destroy(Device device) {

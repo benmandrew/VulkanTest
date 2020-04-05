@@ -1,14 +1,8 @@
 #include "renderer.h"
 
 
-void Renderer::create(Instance instance) {
-    msaaSamples = getMaxUsableSampleCount(instance.device);
-    createRenderPass(instance);
-    createDescriptorSetLayout(instance.device);
-    createGraphicsPipeline(instance);
-}
-
 void Renderer::createRenderPass(Instance instance) {
+    msaaSamples = getMaxUsableSampleCount(instance.device);
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = instance.surface.getFormat();
     colorAttachment.samples = msaaSamples;
@@ -170,7 +164,7 @@ void Renderer::createGraphicsPipeline(Instance instance) {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &instance.descriptor. descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
     if (vkCreatePipelineLayout(instance.device.logical, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
@@ -256,6 +250,18 @@ VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
     if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
     if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
     return VK_SAMPLE_COUNT_1_BIT;
+}
+
+void Renderer::destroyColourResources(Device device) {
+    vkDestroyImageView(device.logical, colourImageView, nullptr);
+    vkDestroyImage(device.logical, colourImage, nullptr);
+    vkFreeMemory(device.logical, colourImageMemory, nullptr);
+}
+
+void Renderer::destroyDepthResources(Device device) {
+    vkDestroyImageView(device.logical, depthImageView, nullptr);
+    vkDestroyImage(device.logical, depthImage, nullptr);
+    vkFreeMemory(device.logical, depthImageMemory, nullptr);
 }
 
 const VkRenderPassBeginInfo Renderer::getRenderPassInfo(Instance instance, uint32_t frameIndex) const {

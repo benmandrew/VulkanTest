@@ -23,11 +23,10 @@ struct Device {
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
-    void create(Instance instance, bool enableValidationLayers);
-
-private:
     void pickPhysicalDevice(Instance instance);
     void createLogicalDevice(Instance instance, bool enableValidationLayers);
+
+private:
     bool isDeviceSuitable(VkPhysicalDevice device);
 };
 
@@ -43,11 +42,15 @@ struct Instance {
     std::vector<Model> models;
 
     void create(bool enableValidationLayers);
+    void destroy();
 
 private:
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
+
+    void cleanupSwapChain();
+    void recreateSwapChain();
 };
 
 #endif

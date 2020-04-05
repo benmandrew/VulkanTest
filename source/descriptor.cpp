@@ -1,15 +1,7 @@
 #include "descriptor.h"
 
-void Descriptor::create(Instance instance) {
+void Descriptor::createDescriptorSetLayout(Instance instance) {
     uint32_t swapChainSize = instance.surface.getSwapChainSize();
-    createDescriptorSetLayout(instance.device);
-
-    createUniformBuffers(instance.device, swapChainSize);
-    createDescriptorPool(instance.device, swapChainSize);
-    createDescriptorSets(instance, swapChainSize);
-}
-
-void Descriptor::createDescriptorSetLayout(Device device) {
     VkDescriptorSetLayoutBinding uboLayoutBinding = {};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -26,7 +18,7 @@ void Descriptor::createDescriptorSetLayout(Device device) {
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
-    if (vkCreateDescriptorSetLayout(device.logical, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(instance.device.logical, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
@@ -61,16 +53,18 @@ void Descriptor::createIndexBuffer(Instance instance, std::vector<uint32_t> indi
     vkFreeMemory(instance.device.logical, stagingBufferMemory, nullptr);
 }
 
-void Descriptor::createUniformBuffers(Device device, uint32_t swapChainSize) {
+void Descriptor::createUniformBuffers(Instance instance) {
+    uint32_t swapChainSize = instance.surface.getSwapChainSize();
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
     uniformBuffers.resize(swapChainSize);
     uniformBuffersMemory.resize(swapChainSize);
     for (size_t i = 0; i < swapChainSize; i++) {
-        createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+        createBuffer(instance.device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
     }
 }
 
-void Descriptor::createDescriptorPool(Device device, uint32_t swapChainSize) {
+void Descriptor::createDescriptorPool(Instance instance) {
+    uint32_t swapChainSize = instance.surface.getSwapChainSize();
     std::array<VkDescriptorPoolSize, 2> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainSize);
@@ -81,12 +75,13 @@ void Descriptor::createDescriptorPool(Device device, uint32_t swapChainSize) {
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(swapChainSize);
-    if (vkCreateDescriptorPool(device.logical, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(instance.device.logical, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor pool!");
     }
 }
 
-void Descriptor::createDescriptorSets(Instance instance, uint32_t swapChainSize) {
+void Descriptor::createDescriptorSets(Instance instance) {
+    uint32_t swapChainSize = instance.surface.getSwapChainSize();
     std::vector<VkDescriptorSetLayout> layouts(swapChainSize, descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -123,20 +118,4 @@ void Descriptor::createDescriptorSets(Instance instance, uint32_t swapChainSize)
         descriptorWrites[1].pImageInfo = &imageInfo;
         vkUpdateDescriptorSets(instance.device.logical, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
-}
-
-const VkBuffer Descriptor::getVertexBuffer() const {
-    return vertexBuffer;
-}
-
-const VkBuffer Descriptor::getIndexBuffer() const {
-    return indexBuffer;
-}
-
-const uint32_t Descriptor::getNIndices() const {
-    return nIndices;
-}
-
-const VkDescriptorSet* Descriptor::getDescriptorSets(uint32_t i) const {
-    return &descriptorSets[i];
 }
