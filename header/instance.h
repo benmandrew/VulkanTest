@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "descriptor.h"
 #include "commander.h"
+#include "model.h"
 
 
 struct QueueFamilyIndices {
@@ -21,6 +22,13 @@ struct Device {
     VkPhysicalDevice physical = VK_NULL_HANDLE;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+
+    void create(Instance instance, bool enableValidationLayers);
+
+private:
+    void pickPhysicalDevice(Instance instance);
+    void createLogicalDevice(Instance instance, bool enableValidationLayers);
+    bool isDeviceSuitable(VkPhysicalDevice device);
 };
 
 struct Instance {
@@ -32,17 +40,14 @@ struct Instance {
     Renderer renderer;
     Descriptor descriptor;
     Commander commander;
+    std::vector<Model> models;
 
     void create(bool enableValidationLayers);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 private:
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
-    void pickPhysicalDevice();
-    void createLogicalDevice();
-    bool isDeviceSuitable(VkPhysicalDevice device);
 };
 
 #endif

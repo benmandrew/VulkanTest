@@ -1,6 +1,19 @@
 #include "commander.h"
 
 
+void Commander::createPool(Device device) {
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(device.physical);
+
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+    poolInfo.flags = 0; // Optional
+
+    if (vkCreateCommandPool(device.logical, &poolInfo, nullptr, &pool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create command pool!");
+    }
+}
+
 void Commander::createBuffers(Instance instance) {
     buffers.resize(instance.surface.getSwapChainSize());
     VkCommandBufferAllocateInfo allocInfo = {};

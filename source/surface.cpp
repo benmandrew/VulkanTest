@@ -6,24 +6,6 @@ void Surface::create(Instance instance) {
     createImageViews(instance.device);
 }
 
-SwapChainSupportDetails Surface::querySwapChainSupport(VkPhysicalDevice device) {
-    SwapChainSupportDetails details;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-    if (formatCount != 0) {
-        details.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
-    }
-    uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-    if (presentModeCount != 0) {
-        details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
-    }
-    return details;
-}
-
 const VkFormat Surface::getFormat() const {
     return swapChainImageFormat;
 }
@@ -50,7 +32,7 @@ void Surface::createWindow() {
 }
 
 void Surface::createSwapChain(Instance instance) {
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance.device.physical);
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
@@ -67,7 +49,7 @@ void Surface::createSwapChain(Instance instance) {
     createInfo.imageExtent = extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    QueueFamilyIndices indices = instance.findQueueFamilies(instance.device.physical);
+    QueueFamilyIndices indices = findQueueFamilies(instance);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;

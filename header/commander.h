@@ -13,6 +13,7 @@ class Commander {
     VkCommandPool pool;
     std::vector<VkCommandBuffer> buffers;
 
+    void createPool(Device device);
     void createBuffers(Instance instance);
 
     VkCommandBuffer beginSingleTimeCommands(Device device);

@@ -6,7 +6,7 @@ void Descriptor::create(Instance instance) {
 
     createUniformBuffers(instance.device, swapChainSize);
     createDescriptorPool(instance.device, swapChainSize);
-    createDescriptorSets(instance.device, swapChainSize);
+    createDescriptorSets(instance, swapChainSize);
 }
 
 void Descriptor::createDescriptorSetLayout(Device device) {
@@ -86,7 +86,7 @@ void Descriptor::createDescriptorPool(Device device, uint32_t swapChainSize) {
     }
 }
 
-void Descriptor::createDescriptorSets(Device device, uint32_t swapChainSize) {
+void Descriptor::createDescriptorSets(Instance instance, uint32_t swapChainSize) {
     std::vector<VkDescriptorSetLayout> layouts(swapChainSize, descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -94,7 +94,7 @@ void Descriptor::createDescriptorSets(Device device, uint32_t swapChainSize) {
     allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainSize);
     allocInfo.pSetLayouts = layouts.data();
     descriptorSets.resize(swapChainSize);
-    if (vkAllocateDescriptorSets(device.logical, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+    if (vkAllocateDescriptorSets(instance.device.logical, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
     for (size_t i = 0; i < swapChainSize; i++) {
@@ -104,8 +104,8 @@ void Descriptor::createDescriptorSets(Device device, uint32_t swapChainSize) {
         bufferInfo.range = sizeof(UniformBufferObject);
         VkDescriptorImageInfo imageInfo = {};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureImageView;
-        imageInfo.sampler = textureSampler;
+        imageInfo.imageView = instance.models[0].texture.view;
+        imageInfo.sampler = instance.models[0].texture.sampler;
         std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[0].dstSet = descriptorSets[i];
@@ -121,7 +121,7 @@ void Descriptor::createDescriptorSets(Device device, uint32_t swapChainSize) {
         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pImageInfo = &imageInfo;
-        vkUpdateDescriptorSets(device.logical, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        vkUpdateDescriptorSets(instance.device.logical, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 }
 

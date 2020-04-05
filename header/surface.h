@@ -31,7 +31,6 @@ struct Surface {
     std::vector<VkImageView> swapChainImageViews;
 
     void create(Instance instance);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     const VkFormat getFormat() const;
     const VkExtent2D getExtents() const;
     const uint32_t getSwapChainSize() const;

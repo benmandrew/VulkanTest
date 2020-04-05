@@ -89,6 +89,12 @@ std::vector<const char*> getRequiredExtensions(
 bool checkDeviceExtensionSupport(
     VkPhysicalDevice device);
 
+QueueFamilyIndices findQueueFamilies(
+    Instance instance);
+
+SwapChainSupportDetails querySwapChainSupport(
+    Instance instance);
+
 static std::vector<char> readFile(
     const std::string& filename);
 

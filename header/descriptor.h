@@ -17,11 +17,6 @@ struct UniformBufferObject {
 };
 
 class Descriptor {
-    VkImage textureImage;
-    VkDeviceMemory textureMemory;
-    VkImageView textureImageView;
-    VkSampler textureSampler;
-
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
@@ -39,12 +34,7 @@ class Descriptor {
     void createIndexBuffer(Instance instance, std::vector<uint32_t> indices);
     void createUniformBuffers(Device device, uint32_t swapChainSize);
     void createDescriptorPool(Device device, uint32_t swapChainSize);
-    void createDescriptorSets(Device device, uint32_t swapChainSize);
-
-
-    void createTextureImage();
-    void createTextureImageView();
-    void createTextureSampler();
+    void createDescriptorSets(Instance instance, uint32_t swapChainSize);
 
 public:
     void create(Instance instance);
