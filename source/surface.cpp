@@ -17,12 +17,12 @@ const VkImageView Surface::getSwapChainImageView(uint32_t i) const {
     return swapChainImageViews[i];
 }
 
-void Surface::createWindow() {
+void Surface::createWindow(Instance* instance) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window = glfwCreateWindow(width, height, "Vulkan", nullptr, nullptr);
-    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowUserPointer(window, instance);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
@@ -138,6 +138,6 @@ VkExtent2D Surface::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilitie
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
     // What in fresh hell
-    auto app = reinterpret_cast<Surface*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<Instance*>(glfwGetWindowUserPointer(window));
     app->framebufferResized = true;
 }

@@ -77,6 +77,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
 void Instance::create(bool enableValidationLayers) {
     surface.createWindow();
     validationLayersEnabled = enableValidationLayers;
+    currentFrame = 0;
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -100,6 +101,7 @@ void Instance::create(bool enableValidationLayers) {
     descriptor.createDescriptorPool(*this);
     descriptor.createDescriptorSets(*this);
     commander.createBuffers(*this);
+    sync.createSyncObjects(*this);
 }
 
 void Instance::destroy() {
@@ -108,11 +110,7 @@ void Instance::destroy() {
     descriptor.destroyDescriptorSetLayout(device);
     descriptor.destroyIndexBuffer(device);
     descriptor.destroyVertexBuffer(device);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(instance.device.logical, renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(instance.device.logical, imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(instance.device.logical, inFlightFences[i], nullptr);
-    }
+    sync.destroySyncObjects(device);
     commander.destroyPool(device);
     device.destroyLogicalDevice();
     if (validationLayersEnabled) {
@@ -122,6 +120,62 @@ void Instance::destroy() {
     vkDestroyInstance(instance, nullptr);
     surface.destroyWindow();
     glfwTerminate();
+}
+
+bool Instance::shouldClose() {
+    return glfwWindowShouldClose(surface.window);
+}
+
+void Instance::waitIdle() {
+    vkDeviceWaitIdle(device.logical);
+}
+
+void Instance::drawFrame() {
+    vkWaitForFences(device.logical, 1, &sync.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(device.logical, surface.swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+    if (sync.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(device.logical, 1, &sync.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    sync.imagesInFlight[imageIndex] = sync.inFlightFences[currentFrame];
+    updateUniformBuffer(imageIndex);
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commander.buffers[imageIndex];
+    VkSemaphore signalSemaphores[] = {sync.renderFinishedSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+    vkResetFences(device.logical, 1, &sync.inFlightFences[currentFrame]);
+    if (vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, sync.inFlightFences[currentFrame]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+    VkSwapchainKHR swapChains[] = {surface.swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+    vkQueuePresentKHR(device.presentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void Instance::createInstance() {
@@ -136,7 +190,6 @@ void Instance::createInstance() {
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
-
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;

@@ -30,7 +30,7 @@ struct Surface {
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
 
-    void createWindow();
+    void createWindow(Instance* instance);
     void createSurface(Instance instance);
     void createSwapChain(Instance instance);
     void createImageViews(Device device);

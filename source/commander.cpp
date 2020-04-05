@@ -40,7 +40,7 @@ void Commander::createBuffers(Instance instance) {
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(buffers[i], instance.descriptor.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, instance.descriptor.getDescriptorSets(i), 0, nullptr);
+        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, &instance.descriptor.descriptorSets[i], 0, nullptr);
         vkCmdDrawIndexed(buffers[i], instance.descriptor.nIndices, 1, 0, 0, 0);
         vkCmdEndRenderPass(buffers[i]);
         if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {

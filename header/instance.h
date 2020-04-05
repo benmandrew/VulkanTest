@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "descriptor.h"
 #include "commander.h"
+#include "sync.h"
 #include "model.h"
 
 
@@ -34,6 +35,8 @@ private:
 
 struct Instance {
     bool validationLayersEnabled;
+    uint32_t currentFrame;
+    bool framebufferResized;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     Device device;
@@ -41,10 +44,15 @@ struct Instance {
     Renderer renderer;
     Descriptor descriptor;
     Commander commander;
+    Sync sync;
     std::vector<Model> models;
 
     void create(bool enableValidationLayers);
     void destroy();
+    bool shouldClose();
+    void waitIdle();
+
+    void drawFrame();
 
 private:
     void createInstance();
