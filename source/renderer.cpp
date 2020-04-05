@@ -252,6 +252,22 @@ VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
     return VK_SAMPLE_COUNT_1_BIT;
 }
 
+void Renderer::destroyRenderPass(Device device) {
+    vkDestroyRenderPass(device.logical, renderPass, nullptr);
+}
+
+void Renderer::destroyGraphicsPipeline(Device device) {
+    vkDestroyPipeline(device.logical, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device.logical, pipelineLayout, nullptr);
+}
+
+void Renderer::destroyFramebuffers(Instance instance) {
+    uint32_t swapChainSize = instance.surface.getSwapChainSize();
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyFramebuffer(instance.device.logical, swapChainFramebuffers[i], nullptr);
+    }
+}
+
 void Renderer::destroyColourResources(Device device) {
     vkDestroyImageView(device.logical, colourImageView, nullptr);
     vkDestroyImage(device.logical, colourImage, nullptr);

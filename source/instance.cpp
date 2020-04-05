@@ -56,6 +56,10 @@ void Device::createLogicalDevice(Instance instance, bool enableValidationLayers)
     vkGetDeviceQueue(logical, indices.presentFamily.value(), 0, &presentQueue);
 }
 
+void Device::destroyLogicalDevice() {
+    vkDestroyDevice(logical, nullptr);
+}
+
 bool Device::isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamilyIndices indices = findQueueFamilies(device);
     bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -99,7 +103,25 @@ void Instance::create(bool enableValidationLayers) {
 }
 
 void Instance::destroy() {
-
+    cleanupSwapChain();
+    models[0].texture.destroy(device);
+    descriptor.destroyDescriptorSetLayout(device);
+    descriptor.destroyIndexBuffer(device);
+    descriptor.destroyVertexBuffer(device);
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(instance.device.logical, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(instance.device.logical, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(instance.device.logical, inFlightFences[i], nullptr);
+    }
+    commander.destroyPool(device);
+    device.destroyLogicalDevice();
+    if (validationLayersEnabled) {
+        destroyDebugMessenger();
+    }
+    surface.destroySurface(*this);
+    vkDestroyInstance(instance, nullptr);
+    surface.destroyWindow();
+    glfwTerminate();
 }
 
 void Instance::createInstance() {
@@ -145,32 +167,21 @@ void Instance::setupDebugMessenger() {
     }
 }
 
-void Instance::createSurface() {
-    if (glfwCreateWindowSurface(instance, surface.window, nullptr, &surface.surface) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create window surface!");
-    }
+void Instance::destroyDebugMessenger() {
+    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 }
 
 void Instance::cleanupSwapChain() {
     renderer.destroyColourResources(device);
     renderer.destroyDepthResources(device);
-    uint32_t swapChainSize = surface.getSwapChainSize();
-    for (size_t i = 0; i < swapChainSize; i++) {
-        vkDestroyFramebuffer(device.logical, swapChainFramebuffers[i], nullptr);
-    }
-    commander.destroyBuffers();
-    vkDestroyPipeline(device.logical, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device.logical, pipelineLayout, nullptr);
-    vkDestroyRenderPass(device.logical, renderPass, nullptr);
-    for (size_t i = 0; i < swapChainSize; i++) {
-        vkDestroyImageView(device.logical, swapChainImageViews[i], nullptr);
-    }
-    vkDestroySwapchainKHR(device.logical, swapChain, nullptr);
-    for (size_t i = 0; i < swapChainSize; i++) {
-        vkDestroyBuffer(device.logical, uniformBuffers[i], nullptr);
-        vkFreeMemory(device.logical, uniformBuffersMemory[i], nullptr);
-    }
-    vkDestroyDescriptorPool(device.logical, descriptorPool, nullptr);
+    renderer.destroyFramebuffers(*this);
+    commander.destroyBuffers(device);
+    renderer.destroyGraphicsPipeline(device);
+    renderer.destroyRenderPass(device);
+    surface.destroyImageViews(device);
+    surface.destroySwapChain(device);
+    descriptor.destroyUniformBuffers(*this);
+    descriptor.destroyDescriptorPool(device);
 }
 
 void Instance::recreateSwapChain() {
@@ -182,16 +193,14 @@ void Instance::recreateSwapChain() {
     }
     vkDeviceWaitIdle(device.logical);
     cleanupSwapChain();
-    createSwapChain();
-    createImageViews();
-    createRenderPass();
-    createGraphicsPipeline();
-    createColourResources();
-    createDepthResources();
-    createFramebuffers();
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
-    createCommandBuffers();
+    surface.createSwapChain(*this);
+    surface.createImageViews(device);
+    renderer.createRenderPass(*this);
+    renderer.createColourResources(*this);
+    renderer.createDepthResources(*this);
+    renderer.createFramebuffers(*this);
+    descriptor.createUniformBuffers(*this);
+    descriptor.createDescriptorPool(*this);
+    descriptor.createDescriptorSets(*this);
+    commander.createBuffers(*this);
 }
-s

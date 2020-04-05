@@ -35,6 +35,13 @@ struct Descriptor {
     void createUniformBuffers(Instance instance);
     void createDescriptorPool(Instance instance);
     void createDescriptorSets(Instance instance);
+
+    void destroyDescriptorSetLayout(Device device);
+    void destroyVertexBuffer(Device device);
+    void destroyIndexBuffer(Device device);
+    void destroyUniformBuffers(Instance instance);
+    void destroyDescriptorPool(Device device);
+    void destroyDescriptorSets(Device device);
 };
 
 #endif

@@ -119,3 +119,33 @@ void Descriptor::createDescriptorSets(Instance instance) {
         vkUpdateDescriptorSets(instance.device.logical, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 }
+
+void Descriptor::destroyDescriptorSetLayout(Device device) {
+    vkDestroyDescriptorSetLayout(device.logical, descriptorSetLayout, nullptr);
+}
+
+void Descriptor::destroyVertexBuffer(Device device) {
+    vkDestroyBuffer(device.logical, vertexBuffer, nullptr);
+    vkFreeMemory(device.logical, vertexBufferMemory, nullptr);
+}
+
+void Descriptor::destroyIndexBuffer(Device device) {
+    vkDestroyBuffer(device.logical, indexBuffer, nullptr);
+    vkFreeMemory(device.logical, indexBufferMemory, nullptr);
+}
+
+void Descriptor::destroyUniformBuffers(Instance instance) {
+    uint32_t swapChainSize = instance.surface.getSwapChainSize();
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyBuffer(instance.device.logical, uniformBuffers[i], nullptr);
+        vkFreeMemory(instance.device.logical, uniformBuffersMemory[i], nullptr);
+    }
+}
+
+void Descriptor::destroyDescriptorPool(Device device) {
+    vkDestroyDescriptorPool(device.logical, descriptorPool, nullptr);
+}
+
+void Descriptor::destroyDescriptorSets(Device device) {
+
+}

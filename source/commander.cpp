@@ -75,7 +75,7 @@ void Commander::endSingleTimeCommands(Device device, VkCommandBuffer commandBuff
     vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
 }
 
-void Commander::destroy(Device device) {
+void Commander::destroyPool(Device device) {
     vkDestroyCommandPool(device.logical, pool, nullptr);
 }
 

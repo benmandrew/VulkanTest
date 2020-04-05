@@ -26,6 +26,8 @@ struct Device {
     void pickPhysicalDevice(Instance instance);
     void createLogicalDevice(Instance instance, bool enableValidationLayers);
 
+    void destroyLogicalDevice();
+
 private:
     bool isDeviceSuitable(VkPhysicalDevice device);
 };
@@ -48,6 +50,8 @@ private:
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
+
+    void destroyDebugMessenger();
 
     void cleanupSwapChain();
     void recreateSwapChain();

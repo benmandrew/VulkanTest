@@ -83,6 +83,9 @@ struct Renderer {
     void createDepthResources(Instance instance);
     VkSampleCountFlagBits getMaxUsableSampleCount(Device device);
 
+    void destroyRenderPass(Device device);
+    void destroyGraphicsPipeline(Device device);
+    void destroyFramebuffers(Instance instance);
     void destroyColourResources(Device device);
     void destroyDepthResources(Device device);
 

@@ -31,11 +31,13 @@ struct Surface {
     std::vector<VkImageView> swapChainImageViews;
 
     void createWindow();
+    void createSurface(Instance instance);
     void createSwapChain(Instance instance);
     void createImageViews(Device device);
 
     void destroyWindow();
-    void destroySwapChain(Instance instance);
+    void destroySurface(Instance instance);
+    void destroySwapChain(Device device);
     void destroyImageViews(Device device);
 
     const VkFormat getFormat() const;

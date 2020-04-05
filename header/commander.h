@@ -16,8 +16,8 @@ struct Commander {
     void createPool(Device device);
     void createBuffers(Instance instance);
 
-    void destroyPool();
-    void destroyBuffers();
+    void destroyPool(Device device);
+    void destroyBuffers(Device device);
 
     void transitionImageLayout(Device device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
     void copyBuffer(Device device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

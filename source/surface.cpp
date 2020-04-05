@@ -26,6 +26,12 @@ void Surface::createWindow() {
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
+void Surface::createSurface(Instance instance) {
+    if (glfwCreateWindowSurface(instance.instance, window, nullptr, &surface) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+    }
+}
+
 void Surface::createSwapChain(Instance instance) {
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -74,6 +80,25 @@ void Surface::createImageViews(Device device) {
     swapChainImageViews.resize(swapChainImages.size());
     for (uint32_t i = 0; i < swapChainImages.size(); i++) {
         swapChainImageViews[i] = createImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    }
+}
+
+void Surface::destroyWindow() {
+    glfwDestroyWindow(window);
+}
+
+void Surface::destroySurface(Instance instance) {
+    vkDestroySurfaceKHR(instance.instance, surface, nullptr);
+}
+
+void Surface::destroySwapChain(Device device) {
+    vkDestroySwapchainKHR(device.logical, swapChain, nullptr);
+}
+
+void Surface::destroyImageViews(Device device) {
+    uint32_t swapChainSize = swapChainImages.size();
+    for (size_t i = 0; i < swapChainSize; i++) {
+        vkDestroyImageView(device.logical, swapChainImageViews[i], nullptr);
     }
 }
 
