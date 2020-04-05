@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <array>
+#include <chrono>
 
 #include "util.h"
 
@@ -42,6 +43,8 @@ struct Descriptor {
     void destroyUniformBuffers(Instance instance);
     void destroyDescriptorPool(Device device);
     void destroyDescriptorSets(Device device);
+
+    void updateUniformBuffer(Instance instance, uint32_t currentImage);
 };
 
 #endif

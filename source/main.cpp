@@ -39,7 +39,7 @@
 void run(Instance instance) {
     while(!instance.shouldClose()) {
         glfwPollEvents();
-        
+        instance.drawFrame();
     }
     instance.waitIdle();
 }

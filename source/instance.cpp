@@ -75,7 +75,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
 
 
 void Instance::create(bool enableValidationLayers) {
-    surface.createWindow();
+    surface.createWindow(this);
     validationLayersEnabled = enableValidationLayers;
     currentFrame = 0;
     createInstance();
@@ -133,7 +133,7 @@ void Instance::waitIdle() {
 void Instance::drawFrame() {
     vkWaitForFences(device.logical, 1, &sync.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device.logical, surface.swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device.logical, surface.swapChain, UINT64_MAX, sync.imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
         return;
@@ -144,10 +144,10 @@ void Instance::drawFrame() {
         vkWaitForFences(device.logical, 1, &sync.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     }
     sync.imagesInFlight[imageIndex] = sync.inFlightFences[currentFrame];
-    updateUniformBuffer(imageIndex);
+    descriptor.updateUniformBuffer(*this, imageIndex);
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {sync.imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
