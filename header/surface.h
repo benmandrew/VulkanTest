@@ -1,22 +1,8 @@
 #ifndef __SURFACE_H_INCLUDED__
 #define __SURFACE_H_INCLUDED__
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <stdexcept>
-#include <optional>
-#include <set>
-#include <array>
-
 #include "util.h"
 
-
-struct SwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-};
 
 struct Surface {
     uint32_t width = 800;
@@ -31,14 +17,14 @@ struct Surface {
     std::vector<VkImageView> swapChainImageViews;
 
     void createWindow(Instance* instance);
-    void createSurface(Instance instance);
-    void createSwapChain(Instance instance);
-    void createImageViews(Device device);
+    void createSurface(Instance* instance);
+    void createSwapChain(Instance* instance);
+    void createImageViews(Device* device);
 
     void destroyWindow();
-    void destroySurface(Instance instance);
-    void destroySwapChain(Device device);
-    void destroyImageViews(Device device);
+    void destroySurface(Instance* instance);
+    void destroySwapChain(Device* device);
+    void destroyImageViews(Device* device);
 
     const VkFormat getFormat() const;
     const VkExtent2D getExtents() const;

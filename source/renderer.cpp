@@ -1,10 +1,11 @@
 #include "renderer.h"
+#include "instance.h"
 
 
-void Renderer::createRenderPass(Instance instance) {
-    msaaSamples = getMaxUsableSampleCount(instance.device);
+void Renderer::createRenderPass(Instance* instance) {
+    msaaSamples = getMaxUsableSampleCount(instance->device);
     VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format = instance.surface.getFormat();
+    colorAttachment.format = instance->surface->getFormat();
     colorAttachment.samples = msaaSamples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -16,7 +17,7 @@ void Renderer::createRenderPass(Instance instance) {
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     VkAttachmentDescription depthAttachment = {};
-    depthAttachment.format = findDepthFormat(instance.device);
+    depthAttachment.format = findDepthFormat(instance->device);
     depthAttachment.samples = msaaSamples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -28,7 +29,7 @@ void Renderer::createRenderPass(Instance instance) {
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     VkAttachmentDescription colourAttachmentResolve = {};
-    colourAttachmentResolve.format = instance.surface.getFormat();
+    colourAttachmentResolve.format = instance->surface->getFormat();
     colourAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
     colourAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colourAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -61,16 +62,16 @@ void Renderer::createRenderPass(Instance instance) {
     renderPassInfo.pSubpasses = &subpass;
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
-    if (vkCreateRenderPass(instance.device.logical, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(instance->device->logical, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
         throw std::runtime_error("failed to create render pass!");
     }
 }
 
-void Renderer::createGraphicsPipeline(Instance instance) {
+void Renderer::createGraphicsPipeline(Instance* instance) {
     auto vertShaderCode = readFile("shaders/vert.spv");
     auto fragShaderCode = readFile("shaders/frag.spv");
-    VkShaderModule vertShaderModule = createShaderModule(instance.device, vertShaderCode);
-    VkShaderModule fragShaderModule = createShaderModule(instance.device, fragShaderCode);
+    VkShaderModule vertShaderModule = createShaderModule(instance->device, vertShaderCode);
+    VkShaderModule fragShaderModule = createShaderModule(instance->device, fragShaderCode);
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -97,7 +98,7 @@ void Renderer::createGraphicsPipeline(Instance instance) {
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    const VkExtent2D swapChainExtent = instance.surface.getExtents();
+    const VkExtent2D swapChainExtent = instance->surface->getExtents();
     viewport.width = (float) swapChainExtent.width;
     viewport.height = (float) swapChainExtent.height;
     viewport.minDepth = 0.0f;
@@ -164,10 +165,10 @@ void Renderer::createGraphicsPipeline(Instance instance) {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &instance.descriptor. descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &instance->descriptor-> descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-    if (vkCreatePipelineLayout(instance.device.logical, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(instance->device->logical, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -187,61 +188,61 @@ void Renderer::createGraphicsPipeline(Instance instance) {
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
-    if (vkCreateGraphicsPipelines(instance.device.logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(instance->device->logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
-    vkDestroyShaderModule(instance.device.logical, fragShaderModule, nullptr);
-    vkDestroyShaderModule(instance.device.logical, vertShaderModule, nullptr);
+    vkDestroyShaderModule(instance->device->logical, fragShaderModule, nullptr);
+    vkDestroyShaderModule(instance->device->logical, vertShaderModule, nullptr);
 }
 
-void Renderer::createFramebuffers(Instance instance) {
-    uint32_t swapChainSize = instance.surface.getSwapChainSize();
+void Renderer::createFramebuffers(Instance* instance) {
+    uint32_t swapChainSize = instance->surface->getSwapChainSize();
     swapChainFramebuffers.resize(swapChainSize);
     for (size_t i = 0; i < swapChainSize; i++) {
         std::array<VkImageView, 3> attachments = {
             colourImageView,
             depthImageView,
-            instance.surface.getSwapChainImageView(i)
+            instance->surface->getSwapChainImageView(i)
         };
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
-        const VkExtent2D swapChainExtent = instance.surface.getExtents();
+        const VkExtent2D swapChainExtent = instance->surface->getExtents();
         framebufferInfo.width = swapChainExtent.width;
         framebufferInfo.height = swapChainExtent.height;
         framebufferInfo.layers = 1;
-        if (vkCreateFramebuffer(instance.device.logical, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(instance->device->logical, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
 }
 
-void Renderer::createColourResources(Instance instance) {
-    VkFormat colourFormat = instance.surface.getFormat();
-    const VkExtent2D swapChainExtent = instance.surface.getExtents();
-    createImage(instance.device, swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colourFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colourImage, colourImageMemory);
-    colourImageView = createImageView(instance.device, colourImage, colourFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+void Renderer::createColourResources(Instance* instance) {
+    VkFormat colourFormat = instance->surface->getFormat();
+    const VkExtent2D swapChainExtent = instance->surface->getExtents();
+    createImage(instance->device, swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colourFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colourImage, colourImageMemory);
+    colourImageView = createImageView(instance->device, colourImage, colourFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 }
 
-void Renderer::createDepthResources(Instance instance) {
-    VkFormat depthFormat = findDepthFormat(instance.device);
-    const VkExtent2D swapChainExtent = instance.surface.getExtents();
-    createImage(instance.device,
+void Renderer::createDepthResources(Instance* instance) {
+    VkFormat depthFormat = findDepthFormat(instance->device);
+    const VkExtent2D swapChainExtent = instance->surface->getExtents();
+    createImage(instance->device,
         swapChainExtent.width, swapChainExtent.height, 
         1, msaaSamples,
         depthFormat, VK_IMAGE_TILING_OPTIMAL, 
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
         depthImage, depthImageMemory);
-    depthImageView = createImageView(instance.device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-    instance.commander.transitionImageLayout(instance.device, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
+    depthImageView = createImageView(instance->device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    instance->commander->transitionImageLayout(instance->device, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 }
 
-VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
+VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device* device) {
     VkPhysicalDeviceProperties physicalDeviceProperties;
-    vkGetPhysicalDeviceProperties(device.physical, &physicalDeviceProperties);
+    vkGetPhysicalDeviceProperties(device->physical, &physicalDeviceProperties);
     VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
     if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
@@ -252,41 +253,41 @@ VkSampleCountFlagBits Renderer::getMaxUsableSampleCount(Device device) {
     return VK_SAMPLE_COUNT_1_BIT;
 }
 
-void Renderer::destroyRenderPass(Device device) {
-    vkDestroyRenderPass(device.logical, renderPass, nullptr);
+void Renderer::destroyRenderPass(Device* device) {
+    vkDestroyRenderPass(device->logical, renderPass, nullptr);
 }
 
-void Renderer::destroyGraphicsPipeline(Device device) {
-    vkDestroyPipeline(device.logical, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device.logical, pipelineLayout, nullptr);
+void Renderer::destroyGraphicsPipeline(Device* device) {
+    vkDestroyPipeline(device->logical, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device->logical, pipelineLayout, nullptr);
 }
 
-void Renderer::destroyFramebuffers(Instance instance) {
-    uint32_t swapChainSize = instance.surface.getSwapChainSize();
+void Renderer::destroyFramebuffers(Instance* instance) {
+    uint32_t swapChainSize = instance->surface->getSwapChainSize();
     for (size_t i = 0; i < swapChainSize; i++) {
-        vkDestroyFramebuffer(instance.device.logical, swapChainFramebuffers[i], nullptr);
+        vkDestroyFramebuffer(instance->device->logical, swapChainFramebuffers[i], nullptr);
     }
 }
 
-void Renderer::destroyColourResources(Device device) {
-    vkDestroyImageView(device.logical, colourImageView, nullptr);
-    vkDestroyImage(device.logical, colourImage, nullptr);
-    vkFreeMemory(device.logical, colourImageMemory, nullptr);
+void Renderer::destroyColourResources(Device* device) {
+    vkDestroyImageView(device->logical, colourImageView, nullptr);
+    vkDestroyImage(device->logical, colourImage, nullptr);
+    vkFreeMemory(device->logical, colourImageMemory, nullptr);
 }
 
-void Renderer::destroyDepthResources(Device device) {
-    vkDestroyImageView(device.logical, depthImageView, nullptr);
-    vkDestroyImage(device.logical, depthImage, nullptr);
-    vkFreeMemory(device.logical, depthImageMemory, nullptr);
+void Renderer::destroyDepthResources(Device* device) {
+    vkDestroyImageView(device->logical, depthImageView, nullptr);
+    vkDestroyImage(device->logical, depthImage, nullptr);
+    vkFreeMemory(device->logical, depthImageMemory, nullptr);
 }
 
-const VkRenderPassBeginInfo Renderer::getRenderPassInfo(Instance instance, uint32_t frameIndex) const {
+const VkRenderPassBeginInfo Renderer::getRenderPassInfo(Instance* instance, uint32_t frameIndex) const {
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = swapChainFramebuffers[frameIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = instance.surface.getExtents();
+    renderPassInfo.renderArea.extent = instance->surface->getExtents();
     return renderPassInfo;
 }
 

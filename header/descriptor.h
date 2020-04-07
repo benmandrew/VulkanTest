@@ -1,15 +1,10 @@
 #ifndef __DESCRIPTOR_H_INCLUDED__
 #define __DESCRIPTOR_H_INCLUDED__
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <vector>
-#include <array>
-#include <chrono>
-
 #include "util.h"
 
+
+struct Vertex;
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
@@ -30,21 +25,21 @@ struct Descriptor {
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    void createDescriptorSetLayout(Instance instance);
-    void createVertexBuffer(Instance instance, std::vector<Vertex> vertices);
-    void createIndexBuffer(Instance instance, std::vector<uint32_t> indices);
-    void createUniformBuffers(Instance instance);
-    void createDescriptorPool(Instance instance);
-    void createDescriptorSets(Instance instance);
+    void createDescriptorSetLayout(Instance* instance);
+    void createVertexBuffer(Instance* instance, std::vector<Vertex> vertices);
+    void createIndexBuffer(Instance* instance, std::vector<uint32_t> indices);
+    void createUniformBuffers(Instance* instance);
+    void createDescriptorPool(Instance* instance);
+    void createDescriptorSets(Instance* instance);
 
-    void destroyDescriptorSetLayout(Device device);
-    void destroyVertexBuffer(Device device);
-    void destroyIndexBuffer(Device device);
-    void destroyUniformBuffers(Instance instance);
-    void destroyDescriptorPool(Device device);
-    void destroyDescriptorSets(Device device);
+    void destroyDescriptorSetLayout(Device* device);
+    void destroyVertexBuffer(Device* device);
+    void destroyIndexBuffer(Device* device);
+    void destroyUniformBuffers(Instance* instance);
+    void destroyDescriptorPool(Device* device);
+    void destroyDescriptorSets(Device* device);
 
-    void updateUniformBuffer(Instance instance, uint32_t currentImage);
+    void updateUniformBuffer(Instance* instance, uint32_t currentImage);
 };
 
 #endif

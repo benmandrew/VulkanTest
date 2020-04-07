@@ -1,7 +1,8 @@
 #include "model.h"
+#include "instance.h"
 
 
-void Model::create(Instance instance, std::string modelPath, std::string texPath) {
+void Model::create(Instance* instance, std::string modelPath, std::string texPath) {
     load(modelPath);
     texture.create(instance, texPath);
 }

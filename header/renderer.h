@@ -1,20 +1,7 @@
 #ifndef __RENDERER_H_INCLUDED__
 #define __RENDERER_H_INCLUDED__
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
-
-#include <array>
-#include <stdexcept>
-
-#include "instance.h"
+#include "util.h"
 
 
 struct Vertex {
@@ -76,20 +63,20 @@ struct Renderer {
     VkDeviceMemory colourImageMemory;
     VkImageView colourImageView;
 
-    void createRenderPass(Instance instance);
-    void createGraphicsPipeline(Instance instance);
-    void createFramebuffers(Instance instance);
-    void createColourResources(Instance instance);
-    void createDepthResources(Instance instance);
-    VkSampleCountFlagBits getMaxUsableSampleCount(Device device);
+    void createRenderPass(Instance* instance);
+    void createGraphicsPipeline(Instance* instance);
+    void createFramebuffers(Instance* instance);
+    void createColourResources(Instance* instance);
+    void createDepthResources(Instance* instance);
+    VkSampleCountFlagBits getMaxUsableSampleCount(Device* device);
 
-    void destroyRenderPass(Device device);
-    void destroyGraphicsPipeline(Device device);
-    void destroyFramebuffers(Instance instance);
-    void destroyColourResources(Device device);
-    void destroyDepthResources(Device device);
+    void destroyRenderPass(Device* device);
+    void destroyGraphicsPipeline(Device* device);
+    void destroyFramebuffers(Instance* instance);
+    void destroyColourResources(Device* device);
+    void destroyDepthResources(Device* device);
 
-    const VkRenderPassBeginInfo getRenderPassInfo(Instance instance, uint32_t frameIndex) const;
+    const VkRenderPassBeginInfo getRenderPassInfo(Instance* instance, uint32_t frameIndex) const;
     const VkPipeline getPipeline() const;
     const VkPipelineLayout getPipelineLayout() const;
 };

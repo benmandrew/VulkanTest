@@ -1,25 +1,26 @@
 #include "commander.h"
+#include "instance.h"
 
 
-void Commander::createPool(Device device) {
-    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(device.physical);
+void Commander::createPool(Instance* instance) {
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(instance, instance->device->physical);
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
     poolInfo.flags = 0; // Optional
-    if (vkCreateCommandPool(device.logical, &poolInfo, nullptr, &pool) != VK_SUCCESS) {
+    if (vkCreateCommandPool(instance->device->logical, &poolInfo, nullptr, &pool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");
     }
 }
 
-void Commander::createBuffers(Instance instance) {
-    buffers.resize(instance.surface.getSwapChainSize());
+void Commander::createBuffers(Instance* instance) {
+    buffers.resize(instance->surface->getSwapChainSize());
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) buffers.size();
-    if (vkAllocateCommandBuffers(instance.device.logical, &allocInfo, buffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(instance->device->logical, &allocInfo, buffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
     for (size_t i = 0; i < buffers.size(); i++) {
@@ -28,20 +29,20 @@ void Commander::createBuffers(Instance instance) {
         if (vkBeginCommandBuffer(buffers[i], &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("failed to begin recording command buffer!");
         }
-        VkRenderPassBeginInfo renderPassInfo = instance.renderer.getRenderPassInfo(instance, i);
+        VkRenderPassBeginInfo renderPassInfo = instance->renderer->getRenderPassInfo(instance, i);
         std::array<VkClearValue, 2> clearValues = {};
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipeline());
-        VkBuffer vertexBuffers[] = {instance.descriptor.vertexBuffer};
+        vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->getPipeline());
+        VkBuffer vertexBuffers[] = {instance->descriptor->vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(buffers[i], instance.descriptor.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance.renderer.getPipelineLayout(), 0, 1, &instance.descriptor.descriptorSets[i], 0, nullptr);
-        vkCmdDrawIndexed(buffers[i], instance.descriptor.nIndices, 1, 0, 0, 0);
+        vkCmdBindIndexBuffer(buffers[i], instance->descriptor->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->getPipelineLayout(), 0, 1, &instance->descriptor->descriptorSets[i], 0, nullptr);
+        vkCmdDrawIndexed(buffers[i], instance->descriptor->nIndices, 1, 0, 0, 0);
         vkCmdEndRenderPass(buffers[i]);
         if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
@@ -49,14 +50,14 @@ void Commander::createBuffers(Instance instance) {
     }
 }
 
-VkCommandBuffer Commander::beginSingleTimeCommands(Device device) {
+VkCommandBuffer Commander::beginSingleTimeCommands(Device* device) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandPool = pool;
     allocInfo.commandBufferCount = 1;
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device.logical, &allocInfo, &commandBuffer);
+    vkAllocateCommandBuffers(device->logical, &allocInfo, &commandBuffer);
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -64,22 +65,22 @@ VkCommandBuffer Commander::beginSingleTimeCommands(Device device) {
     return commandBuffer;
 }
 
-void Commander::endSingleTimeCommands(Device device, VkCommandBuffer commandBuffer) {
+void Commander::endSingleTimeCommands(Device* device, VkCommandBuffer commandBuffer) {
     vkEndCommandBuffer(commandBuffer);
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
-    vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(device.graphicsQueue);
-    vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
+    vkQueueSubmit(device->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device->graphicsQueue);
+    vkFreeCommandBuffers(device->logical, pool, 1, &commandBuffer);
 }
 
-void Commander::destroyPool(Device device) {
-    vkDestroyCommandPool(device.logical, pool, nullptr);
+void Commander::destroyPool(Device* device) {
+    vkDestroyCommandPool(device->logical, pool, nullptr);
 }
 
-void Commander::transitionImageLayout(Device device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
+void Commander::transitionImageLayout(Device* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands(device);
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -124,7 +125,7 @@ void Commander::transitionImageLayout(Device device, VkImage image, VkFormat for
     endSingleTimeCommands(device, commandBuffer);
 }
 
-void Commander::copyBuffer(Device device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+void Commander::copyBuffer(Device* device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands(device);
     VkBufferCopy copyRegion = {};
     copyRegion.size = size;
@@ -132,7 +133,7 @@ void Commander::copyBuffer(Device device, VkBuffer srcBuffer, VkBuffer dstBuffer
     endSingleTimeCommands(device, commandBuffer);
 }
 
-void Commander::copyBufferToImage(Device device, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+void Commander::copyBufferToImage(Device* device, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands(device);
     VkBufferImageCopy region = {};
     region.bufferOffset = 0;
@@ -148,9 +149,9 @@ void Commander::copyBufferToImage(Device device, VkBuffer buffer, VkImage image,
     endSingleTimeCommands(device, commandBuffer);
 }
 
-void Commander::generateMipmaps(Device device, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels) {
+void Commander::generateMipmaps(Device* device, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels) {
     VkFormatProperties formatProperties;
-    vkGetPhysicalDeviceFormatProperties(device.physical, imageFormat, &formatProperties);
+    vkGetPhysicalDeviceFormatProperties(device->physical, imageFormat, &formatProperties);
     if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
         throw std::runtime_error("texture image format does not support linear blitting!");
     }

@@ -1,22 +1,12 @@
 #ifndef __INSTANCE_H_INCLUDED__
 #define __INSTANCE_H_INCLUDED__
 
-#include "surface.h"
-#include "renderer.h"
-#include "descriptor.h"
 #include "commander.h"
-#include "sync.h"
+#include "descriptor.h"
 #include "model.h"
-
-
-struct QueueFamilyIndices {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
-
-    bool isComplete() {
-        return graphicsFamily.has_value() && presentFamily.has_value();
-    }
-};
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
 
 struct Device {
     VkDevice logical;
@@ -24,13 +14,13 @@ struct Device {
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
-    void pickPhysicalDevice(Instance instance);
-    void createLogicalDevice(Instance instance, bool enableValidationLayers);
+    void pickPhysicalDevice(Instance* instance);
+    void createLogicalDevice(Instance* instance, bool enableValidationLayers);
 
     void destroyLogicalDevice();
 
 private:
-    bool isDeviceSuitable(VkPhysicalDevice device);
+    bool isDeviceSuitable(Instance* instance, VkPhysicalDevice device);
 };
 
 struct Instance {
@@ -38,13 +28,13 @@ struct Instance {
     uint32_t currentFrame;
     bool framebufferResized;
     VkInstance instance;
-    VkDebugUtilsMessengerEXT debugMessenger;
-    Device device;
-    Surface surface;
-    Renderer renderer;
-    Descriptor descriptor;
-    Commander commander;
-    Sync sync;
+    VkDebugUtilsMessengerEXT* debugMessenger;
+    Device* device;
+    Surface* surface;
+    Renderer* renderer;
+    Descriptor* descriptor;
+    Commander* commander;
+    Sync* sync;
     std::vector<Model> models;
 
     void create(bool enableValidationLayers);

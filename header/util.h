@@ -4,13 +4,23 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 #include <stdexcept>
 #include <vector>
 #include <cstring>
 #include <iostream>
 #include <fstream>
-
-#include "instance.h"
+#include <optional>
+#include <set>
+#include <array>
+#include <chrono>
+#include <string>
 
 
 const std::vector<const char*> validationLayers = {
@@ -22,8 +32,28 @@ const std::vector<const char*> deviceExtensions = {
 };
 
 
+struct Device;
+struct Instance;
+
+
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+
+    bool isComplete() {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
+
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+
 void createImage(
-    Device device,
+    Device* device,
     uint32_t width,
     uint32_t height,
     uint32_t mipLevels,
@@ -36,14 +66,14 @@ void createImage(
     VkDeviceMemory& imageMemory);
 
 VkImageView createImageView(
-    Device device,
+    Device* device,
     VkImage image,
     VkFormat format,
     VkImageAspectFlags aspectFlags,
     uint32_t mipLevels);
 
 void createBuffer(
-    Device device,
+    Device* device,
     VkDeviceSize size,
     VkBufferUsageFlags usage,
     VkMemoryPropertyFlags properties,
@@ -51,18 +81,18 @@ void createBuffer(
     VkDeviceMemory& bufferMemory);
 
 uint32_t findMemoryType(
-    Device device,
+    Device* device,
     uint32_t typeFilter,
     VkMemoryPropertyFlags properties);
 
 VkFormat findSupportedFormat(
-    Device device,
+    Device* device,
     const std::vector<VkFormat>& candidates,
     VkImageTiling tiling,
     VkFormatFeatureFlags features);
 
 VkFormat findDepthFormat(
-    Device device);
+    Device* device);
 
 bool hasStencilComponent(
     VkFormat format);
@@ -90,16 +120,17 @@ bool checkDeviceExtensionSupport(
     VkPhysicalDevice device);
 
 QueueFamilyIndices findQueueFamilies(
-    Instance instance);
+    Instance* instance,
+    VkPhysicalDevice device);
 
 SwapChainSupportDetails querySwapChainSupport(
-    Instance instance);
+    Instance* instance);
 
 static std::vector<char> readFile(
     const std::string& filename);
 
 VkShaderModule createShaderModule(
-    Device device, 
+    Device* device, 
     const std::vector<char>& code);
 
 #endif

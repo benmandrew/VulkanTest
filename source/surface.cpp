@@ -1,5 +1,12 @@
 #include "surface.h"
+#include "instance.h"
 
+
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    // What in fresh hell
+    auto app = reinterpret_cast<Instance*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+}
 
 const VkFormat Surface::getFormat() const {
     return swapChainImageFormat;
@@ -26,13 +33,13 @@ void Surface::createWindow(Instance* instance) {
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void Surface::createSurface(Instance instance) {
-    if (glfwCreateWindowSurface(instance.instance, window, nullptr, &surface) != VK_SUCCESS) {
+void Surface::createSurface(Instance* instance) {
+    if (glfwCreateWindowSurface(instance->instance, window, nullptr, &surface) != VK_SUCCESS) {
         throw std::runtime_error("failed to create window surface!");
     }
 }
 
-void Surface::createSwapChain(Instance instance) {
+void Surface::createSwapChain(Instance* instance) {
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -50,7 +57,7 @@ void Surface::createSwapChain(Instance instance) {
     createInfo.imageExtent = extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    QueueFamilyIndices indices = findQueueFamilies(instance);
+    QueueFamilyIndices indices = findQueueFamilies(instance, instance->device->physical);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -66,17 +73,17 @@ void Surface::createSwapChain(Instance instance) {
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
-    if (vkCreateSwapchainKHR(instance.device.logical, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(instance->device->logical, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
         throw std::runtime_error("failed to create swap chain!");
     }
-    vkGetSwapchainImagesKHR(instance.device.logical, swapChain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(instance->device->logical, swapChain, &imageCount, nullptr);
     swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(instance.device.logical, swapChain, &imageCount, swapChainImages.data());
+    vkGetSwapchainImagesKHR(instance->device->logical, swapChain, &imageCount, swapChainImages.data());
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
 }
 
-void Surface::createImageViews(Device device) {
+void Surface::createImageViews(Device* device) {
     swapChainImageViews.resize(swapChainImages.size());
     for (uint32_t i = 0; i < swapChainImages.size(); i++) {
         swapChainImageViews[i] = createImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
@@ -87,18 +94,18 @@ void Surface::destroyWindow() {
     glfwDestroyWindow(window);
 }
 
-void Surface::destroySurface(Instance instance) {
-    vkDestroySurfaceKHR(instance.instance, surface, nullptr);
+void Surface::destroySurface(Instance* instance) {
+    vkDestroySurfaceKHR(instance->instance, surface, nullptr);
 }
 
-void Surface::destroySwapChain(Device device) {
-    vkDestroySwapchainKHR(device.logical, swapChain, nullptr);
+void Surface::destroySwapChain(Device* device) {
+    vkDestroySwapchainKHR(device->logical, swapChain, nullptr);
 }
 
-void Surface::destroyImageViews(Device device) {
+void Surface::destroyImageViews(Device* device) {
     uint32_t swapChainSize = swapChainImages.size();
     for (size_t i = 0; i < swapChainSize; i++) {
-        vkDestroyImageView(device.logical, swapChainImageViews[i], nullptr);
+        vkDestroyImageView(device->logical, swapChainImageViews[i], nullptr);
     }
 }
 
@@ -134,10 +141,4 @@ VkExtent2D Surface::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilitie
         actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
         return actualExtent;
     }
-}
-
-static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    // What in fresh hell
-    auto app = reinterpret_cast<Instance*>(glfwGetWindowUserPointer(window));
-    app->framebufferResized = true;
 }

@@ -36,19 +36,19 @@
 #endif
 
 
-void run(Instance instance) {
-    while(!instance.shouldClose()) {
+void run(Instance* instance) {
+    while(!instance->shouldClose()) {
         glfwPollEvents();
-        instance.drawFrame();
+        instance->drawFrame();
     }
-    instance.waitIdle();
+    instance->waitIdle();
 }
 
 int main() {
     Instance instance = Instance();
     instance.create(enableValidationLayers);
     try {
-        run(instance);
+        run(&instance);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;

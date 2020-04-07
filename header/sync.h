@@ -12,8 +12,8 @@ struct Sync {
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
 
-    void createSyncObjects(Instance instance);
-    void destroySyncObjects(Device device);
+    void createSyncObjects(Instance* instance);
+    void destroySyncObjects(Device* device);
 };
 
 #endif
