@@ -1,5 +1,14 @@
-#include "surface.h"
+#include "commander.h"
+#include "descriptor.h"
+#include "device.h"
+#include "include.h"
 #include "instance.h"
+#include "model.h"
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
+#include "texture.h"
+#include "util.h"
 
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {

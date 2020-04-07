@@ -1,5 +1,14 @@
-#include "sync.h"
+#include "commander.h"
+#include "descriptor.h"
+#include "device.h"
+#include "include.h"
 #include "instance.h"
+#include "model.h"
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
+#include "texture.h"
+#include "util.h"
 
 
 void Sync::createSyncObjects(Instance* instance) {

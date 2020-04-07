@@ -1,27 +1,21 @@
 #ifndef __INSTANCE_H_INCLUDED__
 #define __INSTANCE_H_INCLUDED__
-
+/*
+#include "device.h"
 #include "commander.h"
 #include "descriptor.h"
 #include "model.h"
 #include "renderer.h"
 #include "surface.h"
-#include "sync.h"
+#include "sync.h"*/
 
-struct Device {
-    VkDevice logical;
-    VkPhysicalDevice physical = VK_NULL_HANDLE;
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
-
-    void pickPhysicalDevice(Instance* instance);
-    void createLogicalDevice(Instance* instance, bool enableValidationLayers);
-
-    void destroyLogicalDevice();
-
-private:
-    bool isDeviceSuitable(Instance* instance, VkPhysicalDevice device);
-};
+struct Device;
+struct Surface;
+struct Renderer;
+struct Descriptor;
+struct Commander;
+struct Sync;
+struct Model;
 
 struct Instance {
     bool validationLayersEnabled;

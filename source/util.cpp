@@ -1,5 +1,14 @@
-#include "util.h"
+#include "commander.h"
+#include "descriptor.h"
+#include "device.h"
+#include "include.h"
 #include "instance.h"
+#include "model.h"
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
+#include "texture.h"
+#include "util.h"
 
 
 void createImage(Device* device, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
@@ -228,7 +237,7 @@ SwapChainSupportDetails querySwapChainSupport(Instance* instance) {
     return details;
 }
 
-static std::vector<char> readFile(const std::string& filename) {
+std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
         throw std::runtime_error("failed to open file!");

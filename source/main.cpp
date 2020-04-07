@@ -1,31 +1,14 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
-
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
-#include <chrono>
-#include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <vector>
-#include <cstring>
-#include <optional>
-#include <set>
-#include <cstdint>
-#include <algorithm>
-#include <fstream>
-#include <array>
-#include <unordered_map>
-
+#include "commander.h"
+#include "descriptor.h"
+#include "device.h"
+#include "include.h"
 #include "instance.h"
+#include "model.h"
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
+#include "texture.h"
+#include "util.h"
 
 
 //#define NDEBUG

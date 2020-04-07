@@ -1,9 +1,6 @@
 #ifndef __MODEL_H_INCLUDED__
 #define __MODEL_H_INCLUDED__
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 #include "texture.h"
 
 

@@ -1,9 +1,6 @@
 #ifndef __IMAGE_H_INCLUDED__
 #define __IMAGE_H_INCLUDED__
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include "util.h"
 
 

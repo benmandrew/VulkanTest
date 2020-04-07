@@ -1,5 +1,14 @@
 #include "commander.h"
+#include "descriptor.h"
+#include "device.h"
+#include "include.h"
 #include "instance.h"
+#include "model.h"
+#include "renderer.h"
+#include "surface.h"
+#include "sync.h"
+#include "texture.h"
+#include "util.h"
 
 
 void Commander::createPool(Instance* instance) {
@@ -78,6 +87,10 @@ void Commander::endSingleTimeCommands(Device* device, VkCommandBuffer commandBuf
 
 void Commander::destroyPool(Device* device) {
     vkDestroyCommandPool(device->logical, pool, nullptr);
+}
+
+void Commander::destroyBuffers(Device* device) {
+    vkFreeCommandBuffers(device->logical, pool, static_cast<uint32_t>(buffers.size()), buffers.data());
 }
 
 void Commander::transitionImageLayout(Device* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
