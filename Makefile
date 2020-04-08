@@ -14,8 +14,15 @@ VulkanTest:
 
 .PHONY: test clean
 
-test: VulkanTest
+run:
 	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d ./build/VulkanTest
+
+debug:
+	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib
+	VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d
+	gdb build/VulkanTest
+
+test: VulkanTest run
 
 clean:
 	rm -f VulkanTest

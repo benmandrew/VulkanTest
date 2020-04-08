@@ -123,6 +123,13 @@ bool checkValidationLayerSupport() {
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(
         &layerCount, availableLayers.data());
+    for (const auto& layerProperties : availableLayers) {
+        std::cout << layerProperties.layerName << std::endl;
+    }
+    std::cout << std::endl;
+    for (const char* layerName : validationLayers) {
+        std::cout << layerName << std::endl;
+    }
     for (const char* layerName : validationLayers) {
         bool layerFound = false;
         for (const auto& layerProperties : availableLayers) {
