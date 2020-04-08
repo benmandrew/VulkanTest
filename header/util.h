@@ -150,7 +150,8 @@ QueueFamilyIndices findQueueFamilies(
     VkPhysicalDevice device);
 
 SwapChainSupportDetails querySwapChainSupport(
-    Instance* instance);
+    Instance* instance,
+    VkPhysicalDevice device);
 
 std::vector<char> readFile(
     const std::string& filename);

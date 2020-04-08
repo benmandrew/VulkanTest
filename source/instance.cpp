@@ -11,6 +11,18 @@
 #include "util.h"
 
 
+Instance::Instance() {
+    currentFrame = 0;
+    framebufferResized = false;
+    device = new Device();
+    surface = new Surface();
+    renderer = new Renderer();
+    descriptor = new Descriptor();
+    commander = new Commander();
+    sync = new Sync();
+    models = std::vector<Model>();
+}
+
 void Instance::create(bool enableValidationLayers) {
     surface->createWindow(this);
     validationLayersEnabled = enableValidationLayers;
@@ -43,7 +55,7 @@ void Instance::create(bool enableValidationLayers) {
 
 void Instance::destroy() {
     cleanupSwapChain();
-    models[0].texture.destroy(device);
+    models[0].texture->destroy(device);
     descriptor->destroyDescriptorSetLayout(device);
     descriptor->destroyIndexBuffer(device);
     descriptor->destroyVertexBuffer(device);

@@ -74,7 +74,7 @@ bool Device::isDeviceSuitable(Instance* instance, VkPhysicalDevice device) {
     bool extensionsSupported = checkDeviceExtensionSupport(device);
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance);
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance, device);
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
     VkPhysicalDeviceFeatures supportedFeatures;

@@ -49,7 +49,7 @@ void Surface::createSurface(Instance* instance) {
 }
 
 void Surface::createSwapChain(Instance* instance) {
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance);
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(instance, instance->device->physical);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);

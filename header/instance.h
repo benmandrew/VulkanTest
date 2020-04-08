@@ -1,13 +1,6 @@
 #ifndef __INSTANCE_H_INCLUDED__
 #define __INSTANCE_H_INCLUDED__
-/*
-#include "device.h"
-#include "commander.h"
-#include "descriptor.h"
-#include "model.h"
-#include "renderer.h"
-#include "surface.h"
-#include "sync.h"*/
+
 
 struct Device;
 struct Surface;
@@ -30,6 +23,8 @@ struct Instance {
     Commander* commander;
     Sync* sync;
     std::vector<Model> models;
+
+    Instance();
 
     void create(bool enableValidationLayers);
     void destroy();

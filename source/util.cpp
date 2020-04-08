@@ -219,20 +219,20 @@ QueueFamilyIndices findQueueFamilies(Instance* instance, VkPhysicalDevice device
     return indices;
 }
 
-SwapChainSupportDetails querySwapChainSupport(Instance* instance) {
+SwapChainSupportDetails querySwapChainSupport(Instance* instance, VkPhysicalDevice device) {
     SwapChainSupportDetails details;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(instance->device->physical, instance->surface->surface, &details.capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, instance->surface->surface, &details.capabilities);
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(instance->device->physical, instance->surface->surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, instance->surface->surface, &formatCount, nullptr);
     if (formatCount != 0) {
         details.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(instance->device->physical, instance->surface->surface, &formatCount, details.formats.data());
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, instance->surface->surface, &formatCount, details.formats.data());
     }
     uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(instance->device->physical, instance->surface->surface, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, instance->surface->surface, &presentModeCount, nullptr);
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(instance->device->physical, instance->surface->surface, &presentModeCount, details.presentModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, instance->surface->surface, &presentModeCount, details.presentModes.data());
     }
     return details;
 }

@@ -14,9 +14,13 @@
 #include <tiny_obj_loader.h>
 
 
+Model::Model() {
+    texture = new Texture();
+}
+
 void Model::create(Instance* instance, std::string modelPath, std::string texPath) {
     load(modelPath);
-    texture.create(instance, texPath);
+    texture->create(instance, texPath);
 }
 
 void Model::load(std::string modelPath) {
