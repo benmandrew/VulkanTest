@@ -6,7 +6,6 @@
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation",
-    //"VK_LAYER_LUNARG_standard_validation",
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -125,8 +124,13 @@ bool hasStencilComponent(
 
 bool checkValidationLayerSupport();
 
-void populateDebugMessengerCreateInfo(
-    VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData);
+
+VkDebugUtilsMessengerCreateInfoEXT getDebugMessengerCreateInfo();
 
 VkResult CreateDebugUtilsMessengerEXT(
     VkInstance instance,

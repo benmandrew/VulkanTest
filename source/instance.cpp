@@ -149,8 +149,8 @@ void Instance::createInstance() {
     if (validationLayersEnabled) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
-        populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        debugCreateInfo = getDebugMessengerCreateInfo();
+        createInfo.pNext = &debugCreateInfo;
     } else {
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
@@ -162,15 +162,14 @@ void Instance::createInstance() {
 
 void Instance::setupDebugMessenger() {
     if (!validationLayersEnabled) return;
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
-    populateDebugMessengerCreateInfo(createInfo);
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, debugMessenger) != VK_SUCCESS) {
+    VkDebugUtilsMessengerCreateInfoEXT createInfo = getDebugMessengerCreateInfo();
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
     }
 }
 
 void Instance::destroyDebugMessenger() {
-    DestroyDebugUtilsMessengerEXT(instance, *debugMessenger, nullptr);
+    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 }
 
 void Instance::cleanupSwapChain() {

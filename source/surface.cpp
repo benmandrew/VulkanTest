@@ -29,10 +29,6 @@ const uint32_t Surface::getSwapChainSize() const {
     return swapChainImageViews.size();
 }
 
-const VkImageView Surface::getSwapChainImageView(uint32_t i) const {
-    return swapChainImageViews[i];
-}
-
 void Surface::createWindow(Instance* instance) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

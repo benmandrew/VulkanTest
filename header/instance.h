@@ -15,7 +15,7 @@ struct Instance {
     uint32_t currentFrame;
     bool framebufferResized;
     VkInstance instance;
-    VkDebugUtilsMessengerEXT* debugMessenger;
+    VkDebugUtilsMessengerEXT debugMessenger;
     Device* device;
     Surface* surface;
     Renderer* renderer;

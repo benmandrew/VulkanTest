@@ -1,3 +1,7 @@
+
+#set environment LD_LIBRARY_PATH=/home/ben/dev/vulkan/1.2.131.2/x86_64/lib
+#set environment VK_LAYER_PATH=/home/ben/dev/vulkan/1.2.131.2/x86_64/etc/vulkan/explicit_layer.d
+
 ################################################################################
 #
 #  This file contains per-layer settings that configure layer behavior at
