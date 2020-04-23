@@ -12,7 +12,7 @@
 
 
 Instance::Instance() {
-    currentFrame = 0;
+    frame = 1;
     framebufferResized = false;
     device = new Device();
     surface = new Surface();
@@ -34,6 +34,7 @@ void Instance::create(bool enableValidationLayers) {
     device->createLogicalDevice(this, validationLayersEnabled);
     surface->createSwapChain(this);
     surface->createImageViews(device);
+    std::cout << "Surface created" << std::endl;
     renderer->createRenderPass(this);
     descriptor->createDescriptorSetLayout(this);
     renderer->createGraphicsPipeline(this);
@@ -41,14 +42,17 @@ void Instance::create(bool enableValidationLayers) {
     renderer->createColourResources(this);
     renderer->createDepthResources(this);
     renderer->createFramebuffers(this);
+    std::cout << "Renderer created" << std::endl;
     models = std::vector<Model>();
     models.push_back(Model());
     models[0].create(this, "models/chalet.obj", "textures/chalet.jpg");
+    std::cout << "Model created" << std::endl;
     descriptor->createVertexBuffer(this, models[0].vertices);
     descriptor->createIndexBuffer(this, models[0].indices);
     descriptor->createUniformBuffers(this);
     descriptor->createDescriptorPool(this);
     descriptor->createDescriptorSets(this);
+    std::cout << "Descriptors created" << std::endl;
     commander->createBuffers(this);
     sync->createSyncObjects(this);
 }
@@ -80,20 +84,24 @@ void Instance::waitIdle() {
 }
 
 void Instance::drawFrame() {
+    frame++;
     vkWaitForFences(device->logical, 1, &sync->inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device->logical, surface->swapChain, UINT64_MAX, sync->imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(
+        device->logical, surface->swapChain,
+        UINT64_MAX,sync->imageAvailableSemaphores[currentFrame],
+        VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
+    descriptor->updateUniformBuffer(this, imageIndex);
     if (sync->imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device->logical, 1, &sync->imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     }
     sync->imagesInFlight[imageIndex] = sync->inFlightFences[currentFrame];
-    descriptor->updateUniformBuffer(this, imageIndex);
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     VkSemaphore waitSemaphores[] = {sync->imageAvailableSemaphores[currentFrame]};
@@ -118,9 +126,10 @@ void Instance::drawFrame() {
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
-    vkQueuePresentKHR(device->presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(device->presentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
         recreateSwapChain();
+        framebufferResized = false;
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
@@ -197,6 +206,7 @@ void Instance::recreateSwapChain() {
     surface->createSwapChain(this);
     surface->createImageViews(device);
     renderer->createRenderPass(this);
+    renderer->createGraphicsPipeline(this);
     renderer->createColourResources(this);
     renderer->createDepthResources(this);
     renderer->createFramebuffers(this);

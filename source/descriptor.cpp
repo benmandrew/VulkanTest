@@ -157,10 +157,6 @@ void Descriptor::destroyDescriptorPool(Device* device) {
     vkDestroyDescriptorPool(device->logical, descriptorPool, nullptr);
 }
 
-void Descriptor::destroyDescriptorSets(Device* device) {
-
-}
-
 void Descriptor::updateUniformBuffer(Instance* instance, uint32_t currentImage) {
     static auto startTime = std::chrono::high_resolution_clock::now();
     auto currentTime = std::chrono::high_resolution_clock::now();

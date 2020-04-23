@@ -233,13 +233,19 @@ void Renderer::createFramebuffers(Instance* instance) {
 void Renderer::createColourResources(Instance* instance) {
     VkFormat colourFormat = instance->surface->getFormat();
     const VkExtent2D swapChainExtent = instance->surface->getExtents();
-    createImage(instance->device, swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colourFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colourImage, colourImageMemory);
-    colourImageView = createImageView(instance->device, colourImage, colourFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    createImage(
+        instance->device, swapChainExtent.width, swapChainExtent.height,
+        1, msaaSamples, colourFormat, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colourImage, colourImageMemory);
+    colourImageView = createImageView(
+        instance->device, colourImage, colourFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 }
 
 void Renderer::createDepthResources(Instance* instance) {
     VkFormat depthFormat = findDepthFormat(instance->device);
     const VkExtent2D swapChainExtent = instance->surface->getExtents();
+    const uint32_t mipLevels = std::floor(std::log2(std::max(swapChainExtent.width, swapChainExtent.height))) + 1;
     createImage(instance->device,
         swapChainExtent.width, swapChainExtent.height, 
         1, msaaSamples,

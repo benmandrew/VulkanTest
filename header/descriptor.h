@@ -37,7 +37,6 @@ struct Descriptor {
     void destroyIndexBuffer(Device* device);
     void destroyUniformBuffers(Instance* instance);
     void destroyDescriptorPool(Device* device);
-    void destroyDescriptorSets(Device* device);
 
     void updateUniformBuffer(Instance* instance, uint32_t currentImage);
 };

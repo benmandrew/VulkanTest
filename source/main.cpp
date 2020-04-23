@@ -30,6 +30,7 @@ void run(Instance* instance) {
 int main() {
     Instance instance = Instance();
     instance.create(enableValidationLayers);
+    std::cout << "Instance created" << std::endl;
     try {
         run(&instance);
     } catch (const std::exception& e) {

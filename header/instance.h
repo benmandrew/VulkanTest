@@ -13,6 +13,7 @@ struct Model;
 struct Instance {
     bool validationLayersEnabled;
     uint32_t currentFrame;
+    uint32_t frame;
     bool framebufferResized;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
