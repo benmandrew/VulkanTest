@@ -11,19 +11,19 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include <stdexcept>
-#include <vector>
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <optional>
-#include <set>
+#include <algorithm>
 #include <array>
 #include <chrono>
-#include <string>
-#include <cstdlib>
 #include <cstdint>
-#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <optional>
+#include <set>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 #endif
