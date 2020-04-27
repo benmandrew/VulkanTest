@@ -40,17 +40,17 @@ void Commander::createBuffers(Instance* instance) {
         }
         VkRenderPassBeginInfo renderPassInfo = instance->renderer->getRenderPassInfo(instance, i);
         std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = {1.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
         vkCmdBeginRenderPass(buffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->getPipeline());
+        vkCmdBindPipeline(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->graphicsPipeline);
         VkBuffer vertexBuffers[] = {instance->descriptor->vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(buffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(buffers[i], instance->descriptor->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->getPipelineLayout(), 0, 1, &instance->descriptor->descriptorSets[i], 0, nullptr);
+        vkCmdBindDescriptorSets(buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, instance->renderer->pipelineLayout, 0, 1, &instance->descriptor->descriptorSets[i], 0, nullptr);
         vkCmdDrawIndexed(buffers[i], instance->descriptor->nIndices, 1, 0, 0, 0);
         vkCmdEndRenderPass(buffers[i]);
         if (vkEndCommandBuffer(buffers[i]) != VK_SUCCESS) {

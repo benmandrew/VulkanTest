@@ -15,8 +15,8 @@ void Descriptor::createDescriptorSetLayout(Instance* instance) {
     uint32_t swapChainSize = instance->surface->getSwapChainSize();
     VkDescriptorSetLayoutBinding uboLayoutBinding = {};
     uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
     samplerLayoutBinding.binding = 1;
@@ -50,7 +50,8 @@ void Descriptor::createVertexBuffer(Instance* instance, std::vector<Vertex> vert
 }
 
 void Descriptor::createIndexBuffer(Instance* instance, std::vector<uint32_t> indices) {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    nIndices = indices.size();
+    VkDeviceSize bufferSize = sizeof(indices[0]) * nIndices;
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(instance->device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
@@ -98,6 +99,7 @@ void Descriptor::createDescriptorSets(Instance* instance) {
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainSize);
+    std::cout << swapChainSize << std::endl;
     allocInfo.pSetLayouts = layouts.data();
     descriptorSets.resize(swapChainSize);
     if (vkAllocateDescriptorSets(instance->device->logical, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {

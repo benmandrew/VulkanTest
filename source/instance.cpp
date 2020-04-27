@@ -12,7 +12,6 @@
 
 
 Instance::Instance() {
-    frame = 1;
     framebufferResized = false;
     device = new Device();
     surface = new Surface();
@@ -84,12 +83,11 @@ void Instance::waitIdle() {
 }
 
 void Instance::drawFrame() {
-    frame++;
     vkWaitForFences(device->logical, 1, &sync->inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
         device->logical, surface->swapChain,
-        UINT64_MAX,sync->imageAvailableSemaphores[currentFrame],
+        UINT64_MAX, sync->imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
@@ -128,8 +126,8 @@ void Instance::drawFrame() {
     presentInfo.pImageIndices = &imageIndex;
     result = vkQueuePresentKHR(device->presentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-        recreateSwapChain();
         framebufferResized = false;
+        recreateSwapChain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
@@ -143,7 +141,7 @@ void Instance::createInstance() {
     }
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Hello Triangle";
+    appInfo.pApplicationName = "Hello There";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -201,7 +199,7 @@ void Instance::recreateSwapChain() {
         glfwGetFramebufferSize(surface->window, &width, &height);
         glfwWaitEvents();
     }
-    vkDeviceWaitIdle(device->logical);
+    waitIdle();
     cleanupSwapChain();
     surface->createSwapChain(this);
     surface->createImageViews(device);
