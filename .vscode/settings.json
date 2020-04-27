@@ -53,5 +53,11 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+
+    "glsllint.additionalStageAssociations": {
+        ".fs": "frag",
+        ".vs": "vert"
+      }
 }
+
