@@ -4,19 +4,19 @@
 #include "util.h"
 
 struct Texture {
-  VkImage image;
-  VkDeviceMemory memory;
-  VkImageView view;
-  VkSampler sampler;
-  uint32_t mipLevels;
+	VkImage image;
+	VkDeviceMemory memory;
+	VkImageView view;
+	VkSampler sampler;
+	uint32_t mipLevels;
 
-  void create(Instance* instance, std::string imgPath);
-  void destroy(Device* device);
+	void create(Instance* instance, std::string imgPath);
+	void destroy(Device* device);
 
-private:
-  void createTextureImage(Instance* instance, std::string imgPath);
-  void createTextureImageView(Device* device);
-  void createTextureSampler(Device* device);
+  private:
+	void createTextureImage(Instance* instance, std::string imgPath);
+	void createTextureImageView(Device* device);
+	void createTextureSampler(Device* device);
 };
 
 #endif

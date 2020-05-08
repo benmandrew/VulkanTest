@@ -4,18 +4,18 @@
 #include "util.h"
 
 struct Device {
-  VkDevice logical;
-  VkPhysicalDevice physical = VK_NULL_HANDLE;
-  VkQueue graphicsQueue;
-  VkQueue presentQueue;
+	VkDevice logical;
+	VkPhysicalDevice physical = VK_NULL_HANDLE;
+	VkQueue graphicsQueue;
+	VkQueue presentQueue;
 
-  void pickPhysicalDevice(Instance* instance);
-  void createLogicalDevice(Instance* instance, bool enableValidationLayers);
+	void pickPhysicalDevice(Instance* instance);
+	void createLogicalDevice(Instance* instance, bool enableValidationLayers);
 
-  void destroyLogicalDevice();
+	void destroyLogicalDevice();
 
-private:
-  bool isDeviceSuitable(Instance* instance, VkPhysicalDevice device);
+  private:
+	bool isDeviceSuitable(Instance* instance, VkPhysicalDevice device);
 };
 
 #endif
