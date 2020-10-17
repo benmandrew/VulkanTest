@@ -91,7 +91,10 @@ void Instance::drawFrame() {
 	} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+
 	descriptor->updateUniformBuffer(this, imageIndex);
+    commander->pushConstants(this);
+
 	if (sync->imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(device->logical, 1, &sync->imagesInFlight[imageIndex],
 		                VK_TRUE, UINT64_MAX);

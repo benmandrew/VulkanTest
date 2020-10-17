@@ -1,0 +1,45 @@
+{
+    "rdocCaptureSettings": 1,
+    "settings": {
+        "autoStart": false,
+        "commandLine": "",
+        "environment": [
+            {
+                "separator": "Platform style",
+                "type": "Set",
+                "value": "/home/ben/dev/vulkan/1.2.131.2/x86_64/etc/vulkan/explicit_layer.d",
+                "variable": "VK_LAYER_PATH"
+            },
+            {
+                "separator": "Platform style",
+                "type": "Set",
+                "value": "/home/ben/dev/vulkan/1.2.131.2/x86_64/lib",
+                "variable": "LD_LIBRARY_PATH"
+            },
+            {
+                "separator": "Platform style",
+                "type": "Set",
+                "value": "VK_LAYER_KHRONOS_validation",
+                "variable": "VK_INSTANCE_LAYERS"
+            }
+        ],
+        "executable": "/home/ben/Desktop/VulkanTest/build/VulkanTest",
+        "inject": false,
+        "numQueuedFrames": 0,
+        "options": {
+            "allowFullscreen": true,
+            "allowVSync": true,
+            "apiValidation": false,
+            "captureAllCmdLists": false,
+            "captureCallstacks": false,
+            "captureCallstacksOnlyDraws": false,
+            "debugOutputMute": true,
+            "delayForDebugger": 0,
+            "hookIntoChildren": false,
+            "refAllResources": false,
+            "verifyBufferAccess": false
+        },
+        "queuedFrameCap": 0,
+        "workingDir": "/home/ben/Desktop/VulkanTest"
+    }
+}

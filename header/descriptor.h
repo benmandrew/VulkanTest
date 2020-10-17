@@ -6,9 +6,10 @@
 struct Vertex;
 
 struct UniformBufferObject {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
+	// alignas(16) glm::mat4 model;
+	// alignas(16) glm::mat4 view;
+	// alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 mvp;
 };
 
 struct Descriptor {
@@ -23,6 +24,8 @@ struct Descriptor {
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
+
+    void* pushConstantsData;
 
 	void createDescriptorSetLayout(Instance* instance);
 	void createVertexBuffer(Instance* instance, std::vector<Vertex> vertices);

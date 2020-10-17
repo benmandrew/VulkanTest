@@ -1,6 +1,8 @@
 #ifndef __INSTANCE_H_INCLUDED__
 #define __INSTANCE_H_INCLUDED__
 
+#include "include.h"
+
 struct Device;
 struct Surface;
 struct Renderer;

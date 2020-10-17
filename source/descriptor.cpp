@@ -126,7 +126,6 @@ void Descriptor::createDescriptorSets(Instance* instance) {
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainSize);
-	std::cout << swapChainSize << std::endl;
 	allocInfo.pSetLayouts = layouts.data();
 	descriptorSets.resize(swapChainSize);
 	if (vkAllocateDescriptorSets(instance->device->logical, &allocInfo,
@@ -142,7 +141,7 @@ void Descriptor::createDescriptorSets(Instance* instance) {
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imageInfo.imageView = instance->models[0].texture->view;
 		imageInfo.sampler = instance->models[0].texture->sampler;
-		std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
+		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = descriptorSets[i];
 		descriptorWrites[0].dstBinding = 0;
@@ -200,19 +199,22 @@ void Descriptor::updateUniformBuffer(Instance* instance,
 	                 .count();
 	const VkExtent2D swapChainExtent = instance->surface->getExtents();
 	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(1.0f), 0.1f * time * glm::radians(90.0f),
+	glm::mat4 model = glm::rotate(glm::mat4(1.0f), 0.1f * time * glm::radians(90.0f),
 	                        glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view =
+	glm::mat4 view =
 	    glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
 	                glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(
+	glm::mat4 proj = glm::perspective(
 	    glm::radians(45.0f),
 	    swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
-	ubo.proj[1][1] *= -1;
-	void* data;
-	vkMapMemory(instance->device->logical, uniformBuffersMemory[currentImage],
-	            0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(instance->device->logical,
-	              uniformBuffersMemory[currentImage]);
+	proj[1][1] *= -1;
+
+    ubo.mvp = proj * view * model;
+
+	// void* data;
+	// vkMapMemory(instance->device->logical, uniformBuffersMemory[currentImage],
+	//             0, sizeof(ubo), 0, &data);
+	memcpy(pushConstantsData, &ubo, sizeof(ubo));
+	// vkUnmapMemory(instance->device->logical,
+	//               uniformBuffersMemory[currentImage]);
 }

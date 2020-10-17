@@ -16,7 +16,8 @@ VulkanTest:
 	./shaders/compile.sh
 	g++ -g $(CFLAGS) -o build/VulkanTest $(SRC) $(LDFLAGS) -lpthread
 
-.PHONY: test clean
+.PHONY:
+	test clean
 
 run:
 	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib
@@ -30,7 +31,8 @@ debug:
 	VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation
 	gdb build/VulkanTest
 
-test: VulkanTest run
+test:
+	VulkanTest run
 
 clean:
 	rm -f VulkanTest

@@ -84,8 +84,8 @@ void Renderer::createRenderPass(Instance* instance) {
 }
 
 void Renderer::createGraphicsPipeline(Instance* instance) {
-	auto vertShaderCode = readFile("shaders/vert.spv");
-	auto fragShaderCode = readFile("shaders/frag.spv");
+	auto vertShaderCode = readFile("shaders/shader.vert.spv");
+	auto fragShaderCode = readFile("shaders/shader.frag.spv");
 	VkShaderModule vertShaderModule =
 	    createShaderModule(instance->device, vertShaderCode);
 	VkShaderModule fragShaderModule =
@@ -197,9 +197,9 @@ void Renderer::createGraphicsPipeline(Instance* instance) {
 	pipelineLayoutInfo.pSetLayouts = &instance->descriptor->descriptorSetLayout;
 	pipelineLayoutInfo.setLayoutCount = 1;
 	VkPushConstantRange pushConstantRange = {};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	pushConstantRange.stageFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = 128;
+	pushConstantRange.size = sizeof(glm::mat4);
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 	if (vkCreatePipelineLayout(instance->device->logical, &pipelineLayoutInfo,
@@ -346,8 +346,8 @@ void Renderer::destroyDepthResources(Device* device) {
 	vkFreeMemory(device->logical, depthImageMemory, nullptr);
 }
 
-const VkRenderPassBeginInfo
-Renderer::getRenderPassInfo(Instance* instance, uint32_t frameIndex) const {
+const VkRenderPassBeginInfo Renderer::getRenderPassInfo(
+        Instance* instance, uint32_t frameIndex) const {
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;

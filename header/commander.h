@@ -18,6 +18,7 @@ struct Commander {
 	void transitionImageLayout(Device* device, VkImage image, VkFormat format,
 	                           VkImageLayout oldLayout, VkImageLayout newLayout,
 	                           uint32_t mipLevels);
+    void pushConstants(Instance* instance);
 	void copyBuffer(Device* device, VkBuffer srcBuffer, VkBuffer dstBuffer,
 	                VkDeviceSize size);
 	void copyBufferToImage(Device* device, VkBuffer buffer, VkImage image,
