@@ -25,7 +25,7 @@ struct Descriptor {
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
-    void* pushConstantsData;
+    UniformBufferObject ubo;
 
 	void createDescriptorSetLayout(Instance* instance);
 	void createVertexBuffer(Instance* instance, std::vector<Vertex> vertices);

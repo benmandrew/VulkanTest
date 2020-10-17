@@ -93,7 +93,6 @@ void Instance::drawFrame() {
 	}
 
 	descriptor->updateUniformBuffer(this, imageIndex);
-    commander->pushConstants(this);
 
 	if (sync->imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(device->logical, 1, &sync->imagesInFlight[imageIndex],

@@ -197,9 +197,9 @@ void Renderer::createGraphicsPipeline(Instance* instance) {
 	pipelineLayoutInfo.pSetLayouts = &instance->descriptor->descriptorSetLayout;
 	pipelineLayoutInfo.setLayoutCount = 1;
 	VkPushConstantRange pushConstantRange = {};
-	pushConstantRange.stageFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = sizeof(glm::mat4);
+	pushConstantRange.size = sizeof(UniformBufferObject);
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 	if (vkCreatePipelineLayout(instance->device->logical, &pipelineLayoutInfo,

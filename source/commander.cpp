@@ -163,8 +163,8 @@ void Commander::transitionImageLayout(Device* device, VkImage image,
 void Commander::pushConstants(Instance* instance) {
 	VkCommandBuffer commandBuffer = beginSingleTimeCommands(instance->device);
     vkCmdPushConstants(commandBuffer, instance->renderer->pipelineLayout,
-        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, sizeof(glm::mat4),
-        instance->descriptor->pushConstantsData);
+        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UniformBufferObject),
+        (void*)&instance->descriptor->ubo);
 	endSingleTimeCommands(instance->device, commandBuffer);
 }
 

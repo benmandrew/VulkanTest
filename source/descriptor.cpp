@@ -198,7 +198,7 @@ void Descriptor::updateUniformBuffer(Instance* instance,
 	                 currentTime - startTime)
 	                 .count();
 	const VkExtent2D swapChainExtent = instance->surface->getExtents();
-	UniformBufferObject ubo = {};
+	ubo = {};
 	glm::mat4 model = glm::rotate(glm::mat4(1.0f), 0.1f * time * glm::radians(90.0f),
 	                        glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 view =
@@ -210,11 +210,12 @@ void Descriptor::updateUniformBuffer(Instance* instance,
 	proj[1][1] *= -1;
 
     ubo.mvp = proj * view * model;
+    instance->commander->pushConstants(instance);
 
 	// void* data;
 	// vkMapMemory(instance->device->logical, uniformBuffersMemory[currentImage],
 	//             0, sizeof(ubo), 0, &data);
-	memcpy(pushConstantsData, &ubo, sizeof(ubo));
+	// memcpy(pushConstantsData, &ubo, sizeof(ubo));
 	// vkUnmapMemory(instance->device->logical,
 	//               uniformBuffersMemory[currentImage]);
 }
